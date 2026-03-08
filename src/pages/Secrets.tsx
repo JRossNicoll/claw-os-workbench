@@ -3,13 +3,7 @@ import { Plus, Trash2, Lock, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-const secretsData = [
-  { name: "TELEGRAM_BOT_TOKEN", createdAt: "Jan 15, 2024", lastUsed: "2 min ago", usedBy: 2 },
-  { name: "ETHERSCAN_API_KEY", createdAt: "Jan 10, 2024", lastUsed: "15 min ago", usedBy: 3 },
-  { name: "ALCHEMY_API_KEY", createdAt: "Jan 8, 2024", lastUsed: "1h ago", usedBy: 5 },
-  { name: "PRIVATE_KEY_MAIN", createdAt: "Jan 5, 2024", lastUsed: "30 min ago", usedBy: 1 },
-  { name: "DISCORD_WEBHOOK_URL", createdAt: "Feb 1, 2024", lastUsed: "3h ago", usedBy: 1 },
-];
+const secretsData: { name: string; createdAt: string; lastUsed: string; usedBy: number }[] = [];
 
 const Secrets = () => {
   const [showAdd, setShowAdd] = useState(false);
@@ -65,35 +59,50 @@ const Secrets = () => {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.05 }}
-        className="space-y-2"
       >
-        {secretsData.map((secret, i) => (
-          <motion.div
-            key={secret.name}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.06 + i * 0.03 }}
-            className="flex items-center gap-4 p-4 rounded-xl surface-elevated group"
-          >
-            <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-              <Lock className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-foreground font-mono">{secret.name}</div>
-              <div className="text-[11px] text-muted-foreground mt-0.5">
-                Created {secret.createdAt} · Used by {secret.usedBy} engine{secret.usedBy > 1 ? "s" : ""} · Last used {secret.lastUsed}
-              </div>
-            </div>
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-              <button className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
-                <MoreHorizontal className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </motion.div>
-        ))}
+        {secretsData.length > 0 ? (
+          <div className="space-y-2">
+            {secretsData.map((secret, i) => (
+              <motion.div
+                key={secret.name}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.06 + i * 0.03 }}
+                className="flex items-center gap-4 p-4 rounded-xl surface-elevated group"
+              >
+                <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                  <Lock className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-foreground font-mono">{secret.name}</div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">
+                    Created {secret.createdAt} · Used by {secret.usedBy} engine{secret.usedBy > 1 ? "s" : ""} · Last used {secret.lastUsed}
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                  <button className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
+                    <MoreHorizontal className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-20 rounded-2xl surface-elevated">
+            <Lock className="w-10 h-10 text-muted-foreground/25 mb-4" />
+            <p className="text-sm text-muted-foreground mb-1">No secrets stored yet</p>
+            <p className="text-xs text-muted-foreground/60 mb-5">Add API keys and credentials for your engines</p>
+            <button
+              onClick={() => setShowAdd(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Add Secret
+            </button>
+          </div>
+        )}
       </motion.div>
 
       <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
