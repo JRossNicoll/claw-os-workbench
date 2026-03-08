@@ -29,8 +29,8 @@ export function StepTools({ selected, onToggle }: StepToolsProps) {
           const isSelected = selected.includes(engine.id);
           return (
             <button
-              key={tool.id}
-              onClick={() => onToggle(tool.id)}
+              key={engine.id}
+              onClick={() => onToggle(engine.id)}
               className={cn(
                 "relative flex flex-col items-start p-6 rounded-2xl surface-elevated text-left transition-all duration-300",
                 isSelected
@@ -47,13 +47,13 @@ export function StepTools({ selected, onToggle }: StepToolsProps) {
                 "w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-all duration-300",
                 isSelected ? "bg-primary/20 scale-105" : "bg-muted"
               )}>
-                <tool.icon className={cn(
+                <engine.icon className={cn(
                   "w-5 h-5 transition-colors",
                   isSelected ? "text-primary" : "text-muted-foreground"
                 )} />
               </div>
-              <span className="text-sm font-medium text-foreground">{tool.name}</span>
-              <span className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{tool.description}</span>
+              <span className="text-sm font-medium text-foreground">{engine.name}</span>
+              <span className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{engine.description}</span>
             </button>
           );
         })}

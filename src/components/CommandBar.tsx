@@ -15,7 +15,7 @@ export function CommandBar() {
       <div className="flex items-center gap-2 bg-muted/50 rounded-xl px-4 py-2 w-80 group focus-within:bg-muted focus-within:ring-1 focus-within:ring-primary/20 transition-all">
         <Search className="w-3.5 h-3.5 text-muted-foreground" />
         <input
-          placeholder="Search automations, tools..."
+          placeholder="Search automations, engines..."
           className="bg-transparent border-none outline-none text-[13px] text-foreground placeholder:text-muted-foreground/60 w-full"
         />
         <kbd className="hidden sm:inline text-[10px] text-muted-foreground/50 border border-border/60 rounded px-1.5 py-0.5">

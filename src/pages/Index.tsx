@@ -59,7 +59,7 @@ const Home = () => {
       >
         {[
           { label: "Create Automation", icon: Plus, description: "Build a new automation" },
-          { label: "Add Tool", icon: Puzzle, description: "Browse the tool library" },
+          { label: "Install Engine", icon: Puzzle, description: "Browse the Engine Library" },
           { label: "Run Task", icon: Play, description: "Execute a one-off task" },
         ].map((action) => (
           <button
