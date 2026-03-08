@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Layers, Cog, Activity, Lock, Settings } from "lucide-react";
+import { Home, Layers, Cog, Activity, Lock, Settings, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
 
 const navItems = [
   { title: "Home", icon: Home, path: "/" },
@@ -13,30 +15,59 @@ const navItems = [
 
 export function WorkspaceNav() {
   const location = useLocation();
+  const [open, setOpen] = useState(false);
+
+  const current = navItems.find(
+    (item) =>
+      location.pathname === item.path ||
+      (item.path !== "/" && location.pathname.startsWith(item.path))
+  ) || navItems[0];
 
   return (
-    <nav className="flex items-center gap-0.5 px-8 sm:px-12 h-10 border-b border-border/50">
-      {navItems.map((item) => {
-        const isActive =
-          location.pathname === item.path ||
-          (item.path !== "/" && location.pathname.startsWith(item.path));
+    <div className="relative px-8 sm:px-12">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 h-9 text-xs font-medium text-foreground hover:text-primary transition-colors"
+      >
+        <current.icon className="w-3.5 h-3.5 text-primary" />
+        <span>{current.title}</span>
+        <ChevronDown className={cn("w-3 h-3 text-muted-foreground transition-transform duration-200", open && "rotate-180")} />
+      </button>
 
-        return (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={cn(
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150",
-              isActive
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <item.icon className="w-3.5 h-3.5" />
-            <span>{item.title}</span>
-          </NavLink>
-        );
-      })}
-    </nav>
+      <AnimatePresence>
+        {open && (
+          <>
+            <div className="fixed inset-0 z-30" onClick={() => setOpen(false)} />
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+              className="absolute top-9 left-8 sm:left-12 z-40 w-48 py-1.5 rounded-lg bg-card border border-border shadow-lg"
+            >
+              {navItems.map((item) => {
+                const isActive = item.path === current.path;
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2 mx-1 rounded-md text-xs font-medium transition-colors",
+                      isActive
+                        ? "text-primary bg-primary/5"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                    )}
+                  >
+                    <item.icon className="w-3.5 h-3.5" />
+                    <span>{item.title}</span>
+                  </NavLink>
+                );
+              })}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
