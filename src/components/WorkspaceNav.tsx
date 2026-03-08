@@ -1,11 +1,11 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Layers, Puzzle, Activity, Lock, Settings } from "lucide-react";
+import { Home, Layers, Cog, Activity, Lock, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { title: "Home", icon: Home, path: "/" },
   { title: "Automations", icon: Layers, path: "/automations" },
-  { title: "Tools", icon: Puzzle, path: "/tools" },
+  { title: "Engines", icon: Cog, path: "/engines" },
   { title: "Activity", icon: Activity, path: "/activity" },
   { title: "Secrets", icon: Lock, path: "/secrets" },
   { title: "Settings", icon: Settings, path: "/settings" },
