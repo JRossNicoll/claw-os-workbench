@@ -12,6 +12,7 @@ const navItems = [
   { title: "Activity", icon: Activity, path: "/activity" },
   { title: "Secrets", icon: Lock, path: "/secrets" },
   { title: "Settings", icon: Settings, path: "/settings" },
+  { title: "System", icon: Server, path: "/system" },
 ];
 
 export function WorkspaceNav() {
