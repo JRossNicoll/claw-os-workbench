@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Layers, Cog, Activity, Lock, Settings, ChevronDown } from "lucide-react";
+import { Home, Layers, Cog, Activity, Lock, Settings, ChevronDown, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -8,6 +8,7 @@ const navItems = [
   { title: "Home", icon: Home, path: "/" },
   { title: "Automations", icon: Layers, path: "/automations" },
   { title: "Engines", icon: Cog, path: "/engines" },
+  { title: "Integrations", icon: Link2, path: "/integrations" },
   { title: "Activity", icon: Activity, path: "/activity" },
   { title: "Secrets", icon: Lock, path: "/secrets" },
   { title: "Settings", icon: Settings, path: "/settings" },
