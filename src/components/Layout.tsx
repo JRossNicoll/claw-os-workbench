@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { CommandBar } from "./CommandBar";
 import { CommandPalette } from "./CommandPalette";
 
