@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Layers, Cog, Activity, Lock, Settings, ChevronDown, Link2 } from "lucide-react";
+import { Home, Layers, Cog, Activity, Lock, Settings, ChevronDown, Link2, Server } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 
