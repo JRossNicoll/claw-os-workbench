@@ -15,7 +15,7 @@ export function WorkspaceNav() {
   const location = useLocation();
 
   return (
-    <nav className="flex items-center gap-1 px-6 sm:px-10 py-1.5 border-b border-border/30 bg-background/50 backdrop-blur-xl">
+    <nav className="flex items-center gap-0.5 px-8 sm:px-12 h-10 border-b border-border/50">
       {navItems.map((item) => {
         const isActive =
           location.pathname === item.path ||
@@ -26,18 +26,13 @@ export function WorkspaceNav() {
             key={item.path}
             to={item.path}
             className={cn(
-              "flex items-center gap-2 px-3.5 py-2 rounded-lg text-[13px] font-medium transition-all duration-200",
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150",
               isActive
-                ? "bg-primary/10 text-foreground"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <item.icon
-              className={cn(
-                "w-[15px] h-[15px] transition-colors",
-                isActive ? "text-primary" : ""
-              )}
-            />
+            <item.icon className="w-3.5 h-3.5" />
             <span>{item.title}</span>
           </NavLink>
         );

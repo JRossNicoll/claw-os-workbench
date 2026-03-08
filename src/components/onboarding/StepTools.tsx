@@ -2,11 +2,11 @@ import { MessageSquare, Radio, BarChart3, Bot, Mail, Check } from "lucide-react"
 import { cn } from "@/lib/utils";
 
 const engines = [
-  { id: "telegram", name: "Telegram Alerts", description: "Send real-time alerts to Telegram channels", icon: MessageSquare },
-  { id: "incoming-signal", name: "Incoming Signal", description: "Listen for events from external services", icon: Radio },
-  { id: "monitor", name: "Data Monitor", description: "Watch data sources and detect changes", icon: BarChart3 },
-  { id: "ai-agent", name: "AI Assistant", description: "Intelligent automation with AI reasoning", icon: Bot },
-  { id: "email", name: "Email Notifications", description: "Send formatted email alerts and reports", icon: Mail },
+  { id: "telegram", name: "Telegram Alerts", description: "Real-time alerts to Telegram", icon: MessageSquare },
+  { id: "incoming-signal", name: "Incoming Signal", description: "Listen for external events", icon: Radio },
+  { id: "monitor", name: "Data Monitor", description: "Watch sources for changes", icon: BarChart3 },
+  { id: "ai-agent", name: "AI Assistant", description: "AI-powered reasoning engine", icon: Bot },
+  { id: "email", name: "Email Notifications", description: "Formatted email alerts", icon: Mail },
 ];
 
 interface StepToolsProps {
@@ -16,15 +16,15 @@ interface StepToolsProps {
 
 export function StepTools({ selected, onToggle }: StepToolsProps) {
   return (
-    <div className="text-center">
-      <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-        Choose your engines
-      </h1>
-      <p className="text-muted-foreground text-[15px] mt-2.5 mb-10">
-        Select engines to install — add more anytime from the Engine Library
+    <div>
+      <h2 className="text-lg font-semibold text-foreground tracking-tight text-center">
+        Install engines
+      </h2>
+      <p className="text-sm text-muted-foreground text-center mt-1.5 mb-10">
+        Engines power your automations — add more anytime
       </p>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-2">
         {engines.map((engine) => {
           const isSelected = selected.includes(engine.id);
           return (
@@ -32,28 +32,19 @@ export function StepTools({ selected, onToggle }: StepToolsProps) {
               key={engine.id}
               onClick={() => onToggle(engine.id)}
               className={cn(
-                "relative flex flex-col items-start p-6 rounded-2xl surface-elevated text-left transition-all duration-300",
-                isSelected
-                  ? "border-primary ring-1 ring-primary/25 glow-sm"
-                  : "hover:border-primary/15"
+                "w-full flex items-center gap-4 p-4 rounded-lg surface-elevated text-left transition-all duration-200",
+                isSelected ? "border-primary/40" : "hover:border-primary/15"
               )}
             >
-              {isSelected && (
-                <div className="absolute top-4 right-4 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="w-3 h-3 text-primary-foreground" />
-                </div>
-              )}
-              <div className={cn(
-                "w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-all duration-300",
-                isSelected ? "bg-primary/20 scale-105" : "bg-muted"
-              )}>
-                <engine.icon className={cn(
-                  "w-5 h-5 transition-colors",
-                  isSelected ? "text-primary" : "text-muted-foreground"
-                )} />
+              <engine.icon className={cn(
+                "w-4 h-4 flex-shrink-0 transition-colors",
+                isSelected ? "text-primary" : "text-muted-foreground"
+              )} />
+              <div className="flex-1">
+                <span className="text-sm font-medium text-foreground">{engine.name}</span>
+                <span className="text-xs text-muted-foreground ml-2">{engine.description}</span>
               </div>
-              <span className="text-sm font-medium text-foreground">{engine.name}</span>
-              <span className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{engine.description}</span>
+              {isSelected && <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />}
             </button>
           );
         })}

@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { StatusIndicator } from "@/components/StatusIndicator";
-import { Play, Plus, Puzzle, ArrowRight, Clock, Zap, Timer, Layers } from "lucide-react";
+import { Play, Plus, Puzzle, ArrowRight, Clock, Layers } from "lucide-react";
 import { motion } from "framer-motion";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { useNavigate } from "react-router-dom";
@@ -21,85 +20,78 @@ const Home = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-12">
-      {/* Header */}
+    <div className="max-w-3xl mx-auto space-y-14">
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
-        <h1 className="text-3xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-2xl font-semibold text-foreground tracking-tight">
           Mission Control
         </h1>
-        <p className="text-muted-foreground text-[15px] mt-2">
+        <p className="text-muted-foreground text-sm mt-1.5">
           Your automation command center
         </p>
       </motion.div>
 
-      {/* Quick Actions */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.06 }}
-        className="grid grid-cols-3 gap-4"
+        transition={{ duration: 0.6, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
+        className="grid grid-cols-3 gap-3"
       >
         {[
-          { label: "Create Automation", icon: Plus, description: "Build a new automation", onClick: () => navigate("/automations") },
-          { label: "Install Engine", icon: Puzzle, description: "Browse the Engine Library", onClick: () => navigate("/engines") },
-          { label: "Run Task", icon: Play, description: "Execute a one-off task", onClick: () => {} },
+          { label: "Create Automation", icon: Plus, onClick: () => navigate("/automations") },
+          { label: "Install Engine", icon: Puzzle, onClick: () => navigate("/engines") },
+          { label: "Run Task", icon: Play, onClick: () => {} },
         ].map((action) => (
           <button
             key={action.label}
             onClick={action.onClick}
-            className="group flex flex-col items-start p-6 rounded-2xl surface-elevated hover:border-primary/20 transition-all duration-300 text-left"
+            className="group flex items-center gap-3 p-4 rounded-lg surface-elevated hover:border-primary/25 transition-all duration-200 text-left"
           >
-            <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center mb-4 group-hover:bg-primary/15 group-hover:scale-105 transition-all duration-300">
-              <action.icon className="w-5 h-5 text-primary" />
-            </div>
-            <span className="text-sm font-medium text-foreground">{action.label}</span>
-            <span className="text-xs text-muted-foreground mt-1">{action.description}</span>
+            <action.icon className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-[13px] font-medium text-foreground">{action.label}</span>
           </button>
         ))}
       </motion.div>
 
-      {/* Active Automations — empty state */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.12 }}
+        transition={{ duration: 0.6, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-base font-medium text-foreground">Active Automations</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Active Automations</h2>
           <button
             onClick={() => navigate("/automations")}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            className="text-xs text-muted-foreground/60 hover:text-foreground transition-colors flex items-center gap-1"
           >
             View all <ArrowRight className="w-3 h-3" />
           </button>
         </div>
 
-        <div className="flex flex-col items-center justify-center py-16 rounded-2xl surface-elevated">
-          <Layers className="w-8 h-8 text-muted-foreground/30 mb-3" />
-          <p className="text-sm text-muted-foreground">No automations running yet</p>
+        <div className="flex flex-col items-center justify-center py-20 rounded-lg surface-elevated">
+          <Layers className="w-6 h-6 text-muted-foreground/20 mb-3" />
+          <p className="text-sm text-muted-foreground/60">No automations running</p>
           <button
             onClick={() => navigate("/automations")}
-            className="mt-4 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+            className="mt-5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
           >
             Create your first automation
           </button>
         </div>
       </motion.div>
 
-      {/* Recent Activity — empty state */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.18 }}
+        transition={{ duration: 0.6, delay: 0.24, ease: [0.16, 1, 0.3, 1] }}
       >
-        <h2 className="text-base font-medium text-foreground mb-5">Recent Activity</h2>
-        <div className="flex flex-col items-center justify-center py-12 rounded-2xl surface-elevated">
-          <Clock className="w-8 h-8 text-muted-foreground/30 mb-3" />
-          <p className="text-sm text-muted-foreground">No activity yet — it'll show up here once automations run</p>
+        <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4">Recent Activity</h2>
+        <div className="flex flex-col items-center justify-center py-16 rounded-lg surface-elevated">
+          <Clock className="w-6 h-6 text-muted-foreground/20 mb-3" />
+          <p className="text-sm text-muted-foreground/60">Activity will appear here</p>
         </div>
       </motion.div>
     </div>
