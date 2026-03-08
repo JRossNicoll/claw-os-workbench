@@ -1,12 +1,17 @@
 import { Search, Bell, User, Hexagon } from "lucide-react";
+import { WorkspaceNav } from "./WorkspaceNav";
 
 export function CommandBar() {
   return (
     <header className="h-12 flex items-center justify-between px-8 sm:px-12 sticky top-0 z-20 bg-background/80 backdrop-blur-2xl">
-      {/* Brand */}
-      <div className="flex items-center gap-2">
-        <Hexagon className="w-4 h-4 text-primary" strokeWidth={2.5} />
-        <span className="font-semibold text-foreground tracking-tight text-sm">ClawOS</span>
+      {/* Brand + Nav */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Hexagon className="w-4 h-4 text-primary" strokeWidth={2.5} />
+          <span className="font-semibold text-foreground tracking-tight text-sm">ClawOS</span>
+        </div>
+        <div className="w-px h-4 bg-border" />
+        <WorkspaceNav />
       </div>
 
       {/* Search */}

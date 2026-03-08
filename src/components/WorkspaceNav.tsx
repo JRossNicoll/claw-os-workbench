@@ -24,10 +24,10 @@ export function WorkspaceNav() {
   ) || navItems[0];
 
   return (
-    <div className="relative px-8 sm:px-12">
+    <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 h-9 text-xs font-medium text-foreground hover:text-primary transition-colors"
+        className="flex items-center gap-1.5 text-xs font-medium text-foreground hover:text-primary transition-colors"
       >
         <current.icon className="w-3.5 h-3.5 text-primary" />
         <span>{current.title}</span>
@@ -43,7 +43,7 @@ export function WorkspaceNav() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.15 }}
-              className="absolute top-9 left-8 sm:left-12 z-40 w-48 py-1.5 rounded-lg bg-card border border-border shadow-lg"
+              className="absolute top-8 left-0 z-40 w-48 py-1.5 rounded-lg bg-card border border-border shadow-lg"
             >
               {navItems.map((item) => {
                 const isActive = item.path === current.path;
