@@ -1,0 +1,102 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { StepPurpose } from "./StepPurpose";
+import { StepTools } from "./StepTools";
+import { StepConnect } from "./StepConnect";
+import { StepFirstAutomation } from "./StepFirstAutomation";
+
+interface OnboardingWizardProps {
+  onComplete: () => void;
+}
+
+const steps = ["Purpose", "Tools", "Connect", "First Automation"];
+
+export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedPurpose, setSelectedPurpose] = useState<string | null>(null);
+  const [selectedTools, setSelectedTools] = useState<string[]>([]);
+
+  const next = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      onComplete();
+    }
+  };
+
+  const back = () => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+  };
+
+  return (
+    <div className="min-h-[80vh] flex flex-col items-center justify-center max-w-2xl mx-auto">
+      {/* Progress */}
+      <div className="flex items-center gap-2 mb-12">
+        {steps.map((label, i) => (
+          <div key={label} className="flex items-center gap-2">
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-300 ${
+                i <= currentStep
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {i + 1}
+            </div>
+            {i < steps.length - 1 && (
+              <div
+                className={`w-12 h-px transition-colors duration-300 ${
+                  i < currentStep ? "bg-primary" : "bg-border"
+                }`}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Step Content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentStep}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.3 }}
+          className="w-full"
+        >
+          {currentStep === 0 && (
+            <StepPurpose selected={selectedPurpose} onSelect={setSelectedPurpose} />
+          )}
+          {currentStep === 1 && (
+            <StepTools selected={selectedTools} onToggle={(id) =>
+              setSelectedTools((prev) =>
+                prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
+              )
+            } />
+          )}
+          {currentStep === 2 && <StepConnect />}
+          {currentStep === 3 && <StepFirstAutomation />}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Navigation */}
+      <div className="flex items-center gap-3 mt-10">
+        {currentStep > 0 && (
+          <button
+            onClick={back}
+            className="px-5 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            Back
+          </button>
+        )}
+        <button
+          onClick={next}
+          disabled={currentStep === 0 && !selectedPurpose}
+          className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          {currentStep === steps.length - 1 ? "Launch Mission Control" : "Continue"}
+        </button>
+      </div>
+    </div>
+  );
+}
