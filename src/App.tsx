@@ -7,7 +7,7 @@ import { Layout } from "@/components/Layout";
 import Home from "./pages/Index";
 import Automations from "./pages/Automations";
 import Templates from "./pages/Templates";
-import Tools from "./pages/Tools";
+import Engines from "./pages/Engines";
 import Activity from "./pages/Activity";
 import Secrets from "./pages/Secrets";
 import Settings from "./pages/Settings";
