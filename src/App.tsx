@@ -16,6 +16,7 @@ import Secrets from "./pages/Secrets";
 import Settings from "./pages/Settings";
 import Integrations from "./pages/Integrations";
 import Login from "./pages/Login";
+import System from "./pages/System";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
