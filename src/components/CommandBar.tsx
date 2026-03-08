@@ -1,7 +1,11 @@
 import { Search, Bell, User, Hexagon } from "lucide-react";
 import { WorkspaceNav } from "./WorkspaceNav";
 
-export function CommandBar() {
+interface CommandBarProps {
+  onOpenSearch?: () => void;
+}
+
+export function CommandBar({ onOpenSearch }: CommandBarProps) {
   return (
     <header className="h-12 flex items-center justify-between px-8 sm:px-12 sticky top-0 z-20 bg-background/80 backdrop-blur-2xl">
       {/* Brand + Nav */}
@@ -15,16 +19,16 @@ export function CommandBar() {
       </div>
 
       {/* Search */}
-      <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3.5 py-1.5 w-72 group focus-within:border-primary/30 transition-colors">
+      <button
+        onClick={onOpenSearch}
+        className="flex items-center gap-2 bg-card border border-border rounded-lg px-3.5 py-1.5 w-72 group hover:border-primary/20 transition-colors cursor-pointer"
+      >
         <Search className="w-3 h-3 text-muted-foreground" />
-        <input
-          placeholder="Search..."
-          className="bg-transparent border-none outline-none text-xs text-foreground placeholder:text-muted-foreground/50 w-full"
-        />
+        <span className="text-xs text-muted-foreground/50 flex-1 text-left">Search or run command...</span>
         <kbd className="hidden sm:inline text-[9px] text-muted-foreground/40 border border-border rounded px-1 py-px">
           ⌘K
         </kbd>
-      </div>
+      </button>
 
       {/* Actions */}
       <div className="flex items-center gap-0.5">
