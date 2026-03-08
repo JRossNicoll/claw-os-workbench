@@ -4,13 +4,13 @@ import { StepPurpose } from "./StepPurpose";
 import { StepTools } from "./StepTools";
 import { StepConnect } from "./StepConnect";
 import { StepFirstAutomation } from "./StepFirstAutomation";
-import { Sparkles } from "lucide-react";
+import { Hexagon } from "lucide-react";
 
 interface OnboardingWizardProps {
   onComplete: () => void;
 }
 
-const steps = ["Purpose", "Tools", "Connect", "First Automation"];
+const steps = ["Purpose", "Engines", "Connect", "Automate"];
 
 export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -30,54 +30,36 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   };
 
   return (
-    <div className="min-h-[85vh] flex flex-col items-center justify-center max-w-2xl mx-auto px-4">
-      {/* Brand header */}
+    <div className="min-h-[85vh] flex flex-col items-center justify-center max-w-xl mx-auto px-4">
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="flex items-center gap-2.5 mb-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+        className="flex items-center gap-2 mb-12"
       >
-        <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center">
-          <Sparkles className="w-4 h-4 text-primary" />
-        </div>
-        <span className="text-lg font-semibold text-foreground tracking-tight">Welcome to ClawOS</span>
+        <Hexagon className="w-5 h-5 text-primary" strokeWidth={2.5} />
+        <span className="text-base font-semibold text-foreground tracking-tight">Set up ClawOS</span>
       </motion.div>
 
-      {/* Progress */}
-      <div className="flex items-center gap-2 mb-14">
-        {steps.map((label, i) => (
-          <div key={label} className="flex items-center gap-2">
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all duration-400 ${
-                i < currentStep
-                  ? "bg-primary text-primary-foreground"
-                  : i === currentStep
-                  ? "bg-primary text-primary-foreground glow-sm"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {i + 1}
-            </div>
-            {i < steps.length - 1 && (
-              <div
-                className={`w-14 h-px transition-colors duration-400 ${
-                  i < currentStep ? "bg-primary/60" : "bg-border"
-                }`}
-              />
-            )}
-          </div>
+      {/* Progress — minimal dots */}
+      <div className="flex items-center gap-3 mb-16">
+        {steps.map((_, i) => (
+          <div
+            key={i}
+            className={`h-1 rounded-full transition-all duration-500 ${
+              i <= currentStep ? "bg-primary w-8" : "bg-border w-4"
+            }`}
+          />
         ))}
       </div>
 
-      {/* Step Content */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}
-          initial={{ opacity: 0, y: 14 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -14 }}
-          transition={{ duration: 0.35 }}
+          exit={{ opacity: 0, y: -16 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           className="w-full"
         >
           {currentStep === 0 && (
@@ -95,12 +77,11 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Navigation */}
-      <div className="flex items-center gap-3 mt-12">
+      <div className="flex items-center gap-3 mt-14">
         {currentStep > 0 && (
           <button
             onClick={back}
-            className="px-5 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200"
+            className="px-4 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             Back
           </button>
@@ -108,16 +89,16 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         <button
           onClick={next}
           disabled={currentStep === 0 && !selectedPurpose}
-          className="px-7 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed glow-sm"
+          className="px-6 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          {currentStep === steps.length - 1 ? "Launch Mission Control" : "Continue"}
+          {currentStep === steps.length - 1 ? "Launch" : "Continue"}
         </button>
         {currentStep === 2 && (
           <button
             onClick={next}
-            className="px-5 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="px-4 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            Skip for now
+            Skip
           </button>
         )}
       </div>
