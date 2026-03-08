@@ -6,55 +6,55 @@
 
 @layer base {
   :root {
-    --background: 0 0% 3.5%;
-    --foreground: 40 5% 90%;
+    --background: 220 25% 6%;
+    --foreground: 220 10% 85%;
 
-    --card: 0 0% 5.5%;
-    --card-foreground: 40 5% 90%;
+    --card: 220 22% 9%;
+    --card-foreground: 220 10% 85%;
 
-    --popover: 0 0% 6%;
-    --popover-foreground: 40 5% 90%;
+    --popover: 220 22% 10%;
+    --popover-foreground: 220 10% 85%;
 
-    --primary: 32 80% 54%;
-    --primary-foreground: 0 0% 3%;
+    --primary: 0 72% 55%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 40 4% 58%;
+    --secondary: 220 20% 12%;
+    --secondary-foreground: 220 8% 55%;
 
-    --muted: 0 0% 7%;
-    --muted-foreground: 0 0% 38%;
+    --muted: 220 20% 10%;
+    --muted-foreground: 220 10% 40%;
 
-    --accent: 0 0% 9%;
-    --accent-foreground: 40 5% 82%;
+    --accent: 220 18% 13%;
+    --accent-foreground: 220 10% 78%;
 
     --destructive: 0 55% 48%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 10%;
-    --input: 0 0% 10%;
-    --ring: 32 80% 54%;
+    --border: 220 18% 13%;
+    --input: 220 18% 13%;
+    --ring: 0 72% 55%;
 
     --radius: 0.625rem;
 
-    --sidebar-background: 0 0% 3.5%;
-    --sidebar-foreground: 0 0% 38%;
-    --sidebar-primary: 32 80% 54%;
-    --sidebar-primary-foreground: 0 0% 3%;
-    --sidebar-accent: 0 0% 7%;
-    --sidebar-accent-foreground: 40 5% 82%;
-    --sidebar-border: 0 0% 8%;
-    --sidebar-ring: 32 80% 54%;
+    --sidebar-background: 220 25% 6%;
+    --sidebar-foreground: 220 10% 40%;
+    --sidebar-primary: 0 72% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 10%;
+    --sidebar-accent-foreground: 220 10% 78%;
+    --sidebar-border: 220 18% 12%;
+    --sidebar-ring: 0 72% 55%;
 
     --success: 145 50% 42%;
-    --success-foreground: 0 0% 3%;
+    --success-foreground: 0 0% 100%;
     --warning: 38 80% 50%;
-    --warning-foreground: 0 0% 3%;
+    --warning-foreground: 0 0% 6%;
     --info: 200 60% 50%;
-    --info-foreground: 0 0% 3%;
+    --info-foreground: 0 0% 100%;
 
-    --terminal-bg: 0 0% 2.5%;
-    --terminal-text: 145 35% 50%;
-    --terminal-dim: 0 0% 22%;
+    --terminal-bg: 220 25% 4%;
+    --terminal-text: 0 60% 55%;
+    --terminal-dim: 220 15% 20%;
   }
 }
 
