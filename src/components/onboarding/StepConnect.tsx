@@ -1,12 +1,12 @@
-import { Link2, Plus, Check } from "lucide-react";
+import { Link2, Check } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 const services = [
-  { id: "telegram", name: "Telegram Bot", description: "Bot token for sending alerts" },
-  { id: "etherscan", name: "Etherscan", description: "API key for blockchain data" },
-  { id: "alchemy", name: "Alchemy", description: "Node provider for Web3 calls" },
-  { id: "discord", name: "Discord Webhook", description: "Post updates to Discord channels" },
+  { id: "telegram", name: "Telegram Bot", description: "Bot token for sending alerts and notifications" },
+  { id: "etherscan", name: "Etherscan", description: "API key for blockchain data and analytics" },
+  { id: "alchemy", name: "Alchemy", description: "Node provider for Web3 calls and data" },
+  { id: "discord", name: "Discord", description: "Webhook for posting updates to Discord channels" },
 ];
 
 export function StepConnect() {
@@ -23,11 +23,11 @@ export function StepConnect() {
       <h1 className="text-2xl font-semibold text-foreground tracking-tight">
         Connect your services
       </h1>
-      <p className="text-muted-foreground text-[15px] mt-2 mb-8">
-        Link API keys and credentials — you can skip and add these later
+      <p className="text-muted-foreground text-[15px] mt-2.5 mb-10">
+        Link your accounts and API keys — you can always do this later
       </p>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         {services.map((service) => {
           const isConnected = connected.includes(service.id);
           return (
@@ -35,13 +35,13 @@ export function StepConnect() {
               key={service.id}
               onClick={() => toggle(service.id)}
               className={cn(
-                "w-full flex items-center gap-4 p-4 rounded-xl surface-elevated text-left transition-all duration-200",
-                isConnected ? "border-primary/30" : "hover:border-primary/15"
+                "w-full flex items-center gap-4 p-5 rounded-2xl surface-elevated text-left transition-all duration-300",
+                isConnected ? "border-primary/25" : "hover:border-primary/15"
               )}
             >
               <div className={cn(
-                "w-9 h-9 rounded-lg flex items-center justify-center transition-colors",
-                isConnected ? "bg-primary/20" : "bg-muted"
+                "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
+                isConnected ? "bg-primary/20 scale-105" : "bg-muted"
               )}>
                 {isConnected ? (
                   <Check className="w-4 h-4 text-primary" />
@@ -54,7 +54,7 @@ export function StepConnect() {
                 <div className="text-xs text-muted-foreground mt-0.5">{service.description}</div>
               </div>
               <span className={cn(
-                "text-xs font-medium px-2.5 py-1 rounded-md transition-colors",
+                "text-xs font-medium px-3 py-1.5 rounded-lg transition-all duration-300",
                 isConnected
                   ? "bg-primary/15 text-primary"
                   : "bg-muted text-muted-foreground"

@@ -35,86 +35,86 @@ const Home = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-10">
+    <div className="max-w-4xl mx-auto space-y-12">
       {/* Header */}
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.5 }}
       >
-        <h1 className="text-2xl font-semibold text-foreground tracking-tight">
+        <h1 className="text-3xl font-semibold text-foreground tracking-tight">
           Mission Control
         </h1>
-        <p className="text-muted-foreground text-[15px] mt-1">
+        <p className="text-muted-foreground text-[15px] mt-2">
           3 automations running · All systems healthy
         </p>
       </motion.div>
 
       {/* Quick Actions */}
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
-        className="grid grid-cols-3 gap-3"
+        transition={{ duration: 0.5, delay: 0.06 }}
+        className="grid grid-cols-3 gap-4"
       >
         {[
-          { label: "Create Automation", icon: Plus, description: "Build a new workflow" },
-          { label: "Add Tool", icon: Puzzle, description: "Install from marketplace" },
-          { label: "Run Task", icon: Play, description: "Execute one-off task" },
+          { label: "Create Automation", icon: Plus, description: "Build a new automation" },
+          { label: "Add Tool", icon: Puzzle, description: "Browse the tool library" },
+          { label: "Run Task", icon: Play, description: "Execute a one-off task" },
         ].map((action) => (
           <button
             key={action.label}
-            className="group flex flex-col items-start p-5 rounded-xl surface-elevated hover:border-primary/20 transition-all duration-200 text-left"
+            className="group flex flex-col items-start p-6 rounded-2xl surface-elevated hover:border-primary/20 transition-all duration-300 text-left"
           >
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/15 transition-colors">
-              <action.icon className="w-4 h-4 text-primary" />
+            <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center mb-4 group-hover:bg-primary/15 group-hover:scale-105 transition-all duration-300">
+              <action.icon className="w-5 h-5 text-primary" />
             </div>
             <span className="text-sm font-medium text-foreground">{action.label}</span>
-            <span className="text-xs text-muted-foreground mt-0.5">{action.description}</span>
+            <span className="text-xs text-muted-foreground mt-1">{action.description}</span>
           </button>
         ))}
       </motion.div>
 
       {/* Active Automations */}
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.1 }}
+        transition={{ duration: 0.5, delay: 0.12 }}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-[15px] font-medium text-foreground">Active Automations</h2>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-base font-medium text-foreground">Active Automations</h2>
           <button className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
             View all <ArrowRight className="w-3 h-3" />
           </button>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {activeAutomations.map((auto, i) => (
             <motion.div
               key={auto.id}
-              initial={{ opacity: 0, y: 4 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.12 + i * 0.04 }}
+              transition={{ duration: 0.35, delay: 0.14 + i * 0.04 }}
             >
-              <button className="w-full flex items-center gap-4 p-4 rounded-xl surface-elevated hover:border-primary/15 transition-all duration-200 text-left group">
+              <button className="w-full flex items-center gap-4 p-5 rounded-2xl surface-elevated hover:border-primary/15 transition-all duration-200 text-left group">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-medium text-foreground">{auto.name}</span>
                     <StatusIndicator status={auto.status} />
                   </div>
-                  <div className="flex items-center gap-3 mt-1.5">
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                       {auto.trigger.includes("Every") ? <Timer className="w-3 h-3" /> : <Zap className="w-3 h-3" />}
                       {auto.trigger}
                     </span>
-                    <span className="text-xs text-muted-foreground/60">·</span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="text-xs text-muted-foreground/40">·</span>
+                    <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <Clock className="w-3 h-3" />
                       {auto.lastRun}
                     </span>
                   </div>
                 </div>
-                <ArrowRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors" />
+                <ArrowRight className="w-4 h-4 text-muted-foreground/20 group-hover:text-muted-foreground/60 transition-colors" />
               </button>
             </motion.div>
           ))}
@@ -123,16 +123,16 @@ const Home = () => {
 
       {/* Recent Activity */}
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.15 }}
+        transition={{ duration: 0.5, delay: 0.18 }}
       >
-        <h2 className="text-[15px] font-medium text-foreground mb-4">Recent Activity</h2>
+        <h2 className="text-base font-medium text-foreground mb-5">Recent Activity</h2>
         <div className="space-y-1">
           {recentActivity.map((item) => (
             <div
               key={item.id}
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group"
+              className="flex items-center gap-3 px-4 py-3.5 rounded-xl hover:bg-muted/40 transition-colors cursor-pointer group"
             >
               <StatusIndicator status={item.type} />
               <span className="text-sm text-foreground/80 flex-1">{item.message}</span>
