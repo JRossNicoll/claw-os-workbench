@@ -9,7 +9,7 @@ const activityItems = [
   { id: "3", icon: Zap, message: "Wallet Monitor triggered", detail: "Detected 500 ETH transfer from whale wallet", time: "5 min ago", status: "success" as const },
   { id: "4", icon: Play, message: "DEX Arbitrage failed", detail: "Insufficient liquidity for ETH/USDC swap", time: "1h ago", status: "failed" as const },
   { id: "5", icon: Play, message: "Token Scanner completed successfully", detail: "Found 12 new tokens, 5 passed filters", time: "12 min ago", status: "success" as const },
-  { id: "6", icon: Package, message: "Wallet Tracker tool updated", detail: "Updated from v1.2.0 to v1.2.1", time: "2h ago", status: "success" as const },
+  { id: "6", icon: Package, message: "Wallet Tracker engine updated", detail: "Updated from v1.2.0 to v1.2.1", time: "2h ago", status: "success" as const },
   { id: "7", icon: Bell, message: "Discord alert sent", detail: "Portfolio daily summary delivered", time: "3h ago", status: "success" as const },
   { id: "8", icon: Play, message: "Portfolio Sync completed", detail: "Synced 5 wallets, calculated P&L", time: "3h ago", status: "success" as const },
   { id: "9", icon: Zap, message: "Price spike detected", detail: "ETH up 4.2% in 15 minutes", time: "4h ago", status: "success" as const },
