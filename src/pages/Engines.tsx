@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Puzzle, Download, Star, Check } from "lucide-react";
+import { Cog, Download, Star, Check, Github } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-const tools = [
+const engines = [
   { id: "1", name: "Token Scanner", description: "Scan and analyze new token launches across multiple chains", stars: 234, installed: true, category: "Scanning" },
   { id: "2", name: "Telegram Bot", description: "Send notifications with custom alert templates and rich formatting", stars: 189, installed: true, category: "Notifications" },
   { id: "3", name: "DEX Monitor", description: "Real-time DEX price and liquidity monitoring with thresholds", stars: 156, installed: true, category: "Monitoring" },
@@ -20,14 +20,14 @@ const tools = [
 
 const categories = ["All", "Installed", "Scanning", "Monitoring", "Tracking", "Notifications", "Data", "Execution"];
 
-const Tools = () => {
+const Engines = () => {
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
 
-  const filtered = tools.filter((t) => {
-    if (activeCategory === "Installed" && !t.installed) return false;
-    if (activeCategory !== "All" && activeCategory !== "Installed" && t.category !== activeCategory) return false;
-    if (search && !t.name.toLowerCase().includes(search.toLowerCase()) && !t.description.toLowerCase().includes(search.toLowerCase())) return false;
+  const filtered = engines.filter((e) => {
+    if (activeCategory === "Installed" && !e.installed) return false;
+    if (activeCategory !== "All" && activeCategory !== "Installed" && e.category !== activeCategory) return false;
+    if (search && !e.name.toLowerCase().includes(search.toLowerCase()) && !e.description.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
@@ -37,9 +37,15 @@ const Tools = () => {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
+        className="flex items-end justify-between"
       >
-        <h1 className="text-xl font-semibold text-foreground">Tools</h1>
-        <p className="text-sm text-muted-foreground mt-1">Discover and install automation tools</p>
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">Engine Library</h1>
+          <p className="text-sm text-muted-foreground mt-1">Browse and install engines that power your automations</p>
+        </div>
+        <button className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-muted/60 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
+          <Github className="w-3.5 h-3.5" /> Install from GitHub
+        </button>
       </motion.div>
 
       <motion.div
@@ -51,7 +57,7 @@ const Tools = () => {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search tools..."
+          placeholder="Search engines..."
           className="w-full max-w-sm bg-muted/60 border border-border rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-primary/30 transition-all"
         />
         <div className="flex gap-2 flex-wrap">
@@ -66,7 +72,7 @@ const Tools = () => {
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
-              {cat}
+              {cat === "Installed" ? "Installed Engines" : cat}
             </button>
           ))}
         </div>
@@ -78,9 +84,9 @@ const Tools = () => {
         transition={{ duration: 0.4, delay: 0.1 }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
       >
-        {filtered.map((tool, i) => (
+        {filtered.map((engine, i) => (
           <motion.div
-            key={tool.id}
+            key={engine.id}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 + i * 0.02 }}
@@ -88,26 +94,26 @@ const Tools = () => {
           >
             <div className="flex items-start gap-3 mb-3">
               <div className="w-10 h-10 rounded-xl bg-primary/8 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/12 transition-colors">
-                <Puzzle className="w-5 h-5 text-primary/60" />
+                <Cog className="w-5 h-5 text-primary/60" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-foreground">{tool.name}</div>
+                <div className="text-sm font-medium text-foreground">{engine.name}</div>
                 <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
                   <Star className="w-3 h-3" />
-                  <span>{tool.stars}</span>
+                  <span>{engine.stars}</span>
                   <span className="text-muted-foreground/40 mx-1">·</span>
-                  <span>{tool.category}</span>
+                  <span>{engine.category}</span>
                 </div>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">{tool.description}</p>
-            {tool.installed ? (
+            <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">{engine.description}</p>
+            {engine.installed ? (
               <div className="flex items-center gap-1.5 text-xs text-success font-medium">
                 <Check className="w-3.5 h-3.5" /> Installed
               </div>
             ) : (
               <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/15 transition-colors self-start">
-                <Download className="w-3 h-3" /> Install
+                <Download className="w-3 h-3" /> Install Engine
               </button>
             )}
           </motion.div>
@@ -117,4 +123,4 @@ const Tools = () => {
   );
 };
 
-export default Tools;
+export default Engines;

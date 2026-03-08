@@ -1,7 +1,7 @@
 import { MessageSquare, Radio, BarChart3, Bot, Mail, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const tools = [
+const engines = [
   { id: "telegram", name: "Telegram Alerts", description: "Send real-time alerts to Telegram channels", icon: MessageSquare },
   { id: "incoming-signal", name: "Incoming Signal", description: "Listen for events from external services", icon: Radio },
   { id: "monitor", name: "Data Monitor", description: "Watch data sources and detect changes", icon: BarChart3 },
@@ -18,19 +18,19 @@ export function StepTools({ selected, onToggle }: StepToolsProps) {
   return (
     <div className="text-center">
       <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-        Choose your tools
+        Choose your engines
       </h1>
       <p className="text-muted-foreground text-[15px] mt-2.5 mb-10">
-        Select the tools you'd like to install — add more anytime from the Tool Library
+        Select engines to install — add more anytime from the Engine Library
       </p>
 
       <div className="grid grid-cols-2 gap-4">
-        {tools.map((tool) => {
-          const isSelected = selected.includes(tool.id);
+        {engines.map((engine) => {
+          const isSelected = selected.includes(engine.id);
           return (
             <button
-              key={tool.id}
-              onClick={() => onToggle(tool.id)}
+              key={engine.id}
+              onClick={() => onToggle(engine.id)}
               className={cn(
                 "relative flex flex-col items-start p-6 rounded-2xl surface-elevated text-left transition-all duration-300",
                 isSelected
@@ -47,13 +47,13 @@ export function StepTools({ selected, onToggle }: StepToolsProps) {
                 "w-11 h-11 rounded-xl flex items-center justify-center mb-4 transition-all duration-300",
                 isSelected ? "bg-primary/20 scale-105" : "bg-muted"
               )}>
-                <tool.icon className={cn(
+                <engine.icon className={cn(
                   "w-5 h-5 transition-colors",
                   isSelected ? "text-primary" : "text-muted-foreground"
                 )} />
               </div>
-              <span className="text-sm font-medium text-foreground">{tool.name}</span>
-              <span className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{tool.description}</span>
+              <span className="text-sm font-medium text-foreground">{engine.name}</span>
+              <span className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{engine.description}</span>
             </button>
           );
         })}

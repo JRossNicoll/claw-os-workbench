@@ -81,7 +81,7 @@ const Secrets = () => {
             <div className="flex-1 min-w-0">
               <div className="text-sm font-medium text-foreground font-mono">{secret.name}</div>
               <div className="text-[11px] text-muted-foreground mt-0.5">
-                Created {secret.createdAt} · Used by {secret.usedBy} tool{secret.usedBy > 1 ? "s" : ""} · Last used {secret.lastUsed}
+                Created {secret.createdAt} · Used by {secret.usedBy} engine{secret.usedBy > 1 ? "s" : ""} · Last used {secret.lastUsed}
               </div>
             </div>
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
