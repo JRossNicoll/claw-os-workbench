@@ -16,6 +16,7 @@ import Secrets from "./pages/Secrets";
 import Settings from "./pages/Settings";
 import Integrations from "./pages/Integrations";
 import Login from "./pages/Login";
+import System from "./pages/System";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ function AnimatedRoutes() {
         <Route path="/secrets" element={<ProtectedRoute><Layout><PageTransition><Secrets /></PageTransition></Layout></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Layout><PageTransition><Settings /></PageTransition></Layout></ProtectedRoute>} />
         <Route path="/integrations" element={<ProtectedRoute><Layout><PageTransition><Integrations /></PageTransition></Layout></ProtectedRoute>} />
+        <Route path="/system" element={<ProtectedRoute><Layout><PageTransition><System /></PageTransition></Layout></ProtectedRoute>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>

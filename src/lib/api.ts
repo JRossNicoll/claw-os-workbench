@@ -145,6 +145,35 @@ export async function addApiKey(name: string, value: string) {
   });
 }
 
+// ─── System Control ────────────────────────────────
+export async function getRuntimeHealth() {
+  return request("/system/runtime-health");
+}
+
+export async function getStackStatus() {
+  return request("/system/stack/status");
+}
+
+export async function startStack() {
+  return request("/system/stack/start", { method: "POST" });
+}
+
+export async function stopStack() {
+  return request("/system/stack/stop", { method: "POST" });
+}
+
+export async function restartStack() {
+  return request("/system/stack/restart", { method: "POST" });
+}
+
+export async function getStackLogs(service: string) {
+  return request(`/system/stack/logs?service=${service}`);
+}
+
+export async function getMetrics() {
+  return request("/metrics");
+}
+
 // ─── WebSocket ─────────────────────────────────────
 export function connectEventStream(
   onEvent: (event: any) => void,
