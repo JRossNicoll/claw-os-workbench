@@ -1,7 +1,7 @@
 import { MessageSquare, Radio, BarChart3, Bot, Mail, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const tools = [
+const engines = [
   { id: "telegram", name: "Telegram Alerts", description: "Send real-time alerts to Telegram channels", icon: MessageSquare },
   { id: "incoming-signal", name: "Incoming Signal", description: "Listen for events from external services", icon: Radio },
   { id: "monitor", name: "Data Monitor", description: "Watch data sources and detect changes", icon: BarChart3 },
