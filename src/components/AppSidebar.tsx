@@ -1,12 +1,12 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard,
+  Radar,
   Package,
   GitBranch,
   Play,
   Clock,
   Zap,
-  Database,
+  Store,
   Lock,
   ScrollText,
   Settings,
@@ -16,14 +16,14 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { title: "Dashboard", icon: LayoutDashboard, path: "/" },
-  { title: "Modules", icon: Package, path: "/modules" },
+  { title: "Mission Control", icon: Radar, path: "/" },
   { title: "Workflows", icon: GitBranch, path: "/workflows" },
   { title: "Jobs", icon: Play, path: "/jobs" },
+  { title: "Modules", icon: Package, path: "/modules" },
+  { title: "Marketplace", icon: Store, path: "/registry" },
   { title: "Schedules", icon: Clock, path: "/schedules" },
-  { title: "Event Triggers", icon: Zap, path: "/triggers" },
-  { title: "Registry", icon: Database, path: "/registry" },
-  { title: "Secrets", icon: Lock, path: "/secrets" },
+  { title: "Triggers", icon: Zap, path: "/triggers" },
+  { title: "Vault", icon: Lock, path: "/secrets" },
   { title: "Logs", icon: ScrollText, path: "/logs" },
   { title: "Settings", icon: Settings, path: "/settings" },
 ];
@@ -45,7 +45,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
     >
       {/* Logo */}
       <div className="h-14 flex items-center px-4 border-b border-border gap-2">
-        <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0">
+        <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 glow-sm">
           <Terminal className="w-4 h-4 text-primary" />
         </div>
         {!collapsed && (
@@ -80,6 +80,20 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
           );
         })}
       </nav>
+
+      {/* System status */}
+      {!collapsed && (
+        <div className="px-4 py-3 border-t border-border">
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-glow" />
+            <span>4 workers online</span>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-info animate-pulse-glow" />
+            <span>3 runs active</span>
+          </div>
+        </div>
+      )}
 
       {/* Collapse toggle */}
       <button

@@ -1,120 +1,208 @@
-import { DashboardCard } from "@/components/DashboardCard";
+import { useState } from "react";
 import { StatusBadge } from "@/components/StatusBadge";
-import { LogViewer } from "@/components/LogViewer";
-import { WorkflowDiagram } from "@/components/WorkflowDiagram";
-import { DataTable } from "@/components/DataTable";
-import { Activity, Package, GitBranch, Play, Server, CheckCircle, XCircle } from "lucide-react";
+import { PipelineView } from "@/components/PipelineView";
+import { Play, Plus, Package, ArrowRight, X, Radar } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const recentJobs = [
-  { id: "job-4a2f", module: "token_scanner", status: "running" as const, started: "2 min ago", duration: "2m 14s" },
-  { id: "job-8b1c", module: "telegram_bot", status: "success" as const, started: "15 min ago", duration: "0m 48s" },
-  { id: "job-2e9d", module: "dex_monitor", status: "failed" as const, started: "1h ago", duration: "5m 22s" },
-  { id: "job-7f3a", module: "wallet_tracker", status: "success" as const, started: "2h ago", duration: "1m 03s" },
+const activeRuns = [
+  {
+    id: "run-7a2f",
+    workflow: "Token Launch Pipeline",
+    status: "running" as const,
+    startedAt: "14:30:12",
+    steps: [
+      { id: "s1", name: "scan_tokens", status: "success" as const, duration: "12s", logs: [
+        { timestamp: "14:30:12", level: "info" as const, message: "Scanning 1,247 tokens across 3 chains..." },
+        { timestamp: "14:30:18", level: "info" as const, message: "Found 8 new tokens matching criteria" },
+        { timestamp: "14:30:24", level: "info" as const, message: "Scan complete. 8 candidates forwarded." },
+      ]},
+      { id: "s2", name: "filter_volume", status: "success" as const, duration: "4s", logs: [
+        { timestamp: "14:30:25", level: "info" as const, message: "Filtering by volume > $50k..." },
+        { timestamp: "14:30:28", level: "info" as const, message: "3/8 tokens passed volume filter" },
+        { timestamp: "14:30:29", level: "info" as const, message: "Filter complete." },
+      ]},
+      { id: "s3", name: "launch_token", status: "running" as const, logs: [
+        { timestamp: "14:30:30", level: "info" as const, message: "Preparing launch for TOKEN_A..." },
+        { timestamp: "14:30:35", level: "info" as const, message: "Submitting transaction to DEX..." },
+        { timestamp: "14:30:42", level: "warn" as const, message: "Gas price elevated: 45 gwei, proceeding..." },
+      ]},
+      { id: "s4", name: "notify_telegram", status: "pending" as const },
+    ],
+  },
+  {
+    id: "run-3b8e",
+    workflow: "Wallet Monitor",
+    status: "running" as const,
+    startedAt: "14:28:00",
+    steps: [
+      { id: "s1", name: "track_wallets", status: "success" as const, duration: "8s", logs: [
+        { timestamp: "14:28:00", level: "info" as const, message: "Monitoring 24 wallets..." },
+        { timestamp: "14:28:08", level: "info" as const, message: "Snapshot complete." },
+      ]},
+      { id: "s2", name: "detect_movement", status: "running" as const, logs: [
+        { timestamp: "14:28:09", level: "info" as const, message: "Analyzing transaction patterns..." },
+        { timestamp: "14:28:15", level: "info" as const, message: "Detected 500 ETH transfer from 0xdead..." },
+      ]},
+      { id: "s3", name: "alert_user", status: "pending" as const },
+    ],
+  },
+  {
+    id: "run-9c1d",
+    workflow: "Token Launch Pipeline",
+    status: "success" as const,
+    startedAt: "14:15:00",
+    steps: [
+      { id: "s1", name: "scan_tokens", status: "success" as const, duration: "11s" },
+      { id: "s2", name: "filter_volume", status: "success" as const, duration: "3s" },
+      { id: "s3", name: "launch_token", status: "success" as const, duration: "28s" },
+      { id: "s4", name: "notify_telegram", status: "success" as const, duration: "2s" },
+    ],
+  },
+  {
+    id: "run-4e7f",
+    workflow: "DEX Arbitrage",
+    status: "failed" as const,
+    startedAt: "13:55:00",
+    steps: [
+      { id: "s1", name: "fetch_prices", status: "success" as const, duration: "5s" },
+      { id: "s2", name: "find_spread", status: "success" as const, duration: "2s" },
+      { id: "s3", name: "execute_swap", status: "failed" as const, duration: "15s", logs: [
+        { timestamp: "13:55:22", level: "info" as const, message: "Spread detected: 0.8% on ETH/USDC" },
+        { timestamp: "13:55:30", level: "error" as const, message: "Transaction reverted: insufficient liquidity" },
+        { timestamp: "13:55:37", level: "error" as const, message: "Swap failed. Aborting pipeline." },
+      ]},
+      { id: "s4", name: "log_result", status: "pending" as const },
+    ],
+  },
 ];
 
-const recentLogs = [
-  { timestamp: "14:32:01", level: "info" as const, message: "token_scanner started execution on worker-01" },
-  { timestamp: "14:31:58", level: "info" as const, message: "telegram_bot job-8b1c completed successfully" },
-  { timestamp: "14:31:45", level: "error" as const, message: "dex_monitor connection timeout after 30s" },
-  { timestamp: "14:31:30", level: "warn" as const, message: "wallet_tracker rate limit approaching (85%)" },
-  { timestamp: "14:31:12", level: "debug" as const, message: "scheduler tick: 3 pending jobs in queue" },
-  { timestamp: "14:30:55", level: "info" as const, message: "Module auto-update check completed" },
-];
+const MissionControl = () => {
+  const [selectedRun, setSelectedRun] = useState<string | null>("run-7a2f");
+  const selected = activeRuns.find((r) => r.id === selectedRun);
 
-const workflowSteps = [
-  { id: "1", name: "scan_tokens", status: "success" as const },
-  { id: "2", name: "filter_volume", status: "success" as const },
-  { id: "3", name: "launch_token", status: "running" as const },
-  { id: "4", name: "notify_telegram", status: "pending" as const },
-];
-
-const Dashboard = () => {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
-        <p className="text-sm text-muted-foreground mt-1">System overview and real-time monitoring</p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <DashboardCard title="Active Jobs" value={3} subtitle="+2 from last hour" icon={<Play className="w-4 h-4" />} />
-        <DashboardCard title="Installed Modules" value={12} subtitle="2 updates available" icon={<Package className="w-4 h-4" />} />
-        <DashboardCard title="Workflows" value={7} subtitle="5 active" icon={<GitBranch className="w-4 h-4" />} />
-        <DashboardCard title="Worker Health" icon={<Server className="w-4 h-4" />}>
-          <div className="flex items-center gap-3 mt-2">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-success" />
-              <span className="text-sm text-foreground">3 healthy</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-warning" />
-              <span className="text-sm text-foreground">1 degraded</span>
-            </div>
+    <div className="space-y-6 h-full">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center glow-sm">
+            <Radar className="w-4 h-4 text-primary" />
           </div>
-        </DashboardCard>
-      </div>
-
-      {/* Workflow + Success Rate */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-card rounded-lg border border-border p-5">
-          <h3 className="text-sm font-medium text-foreground mb-4">Active Pipeline</h3>
-          <WorkflowDiagram steps={workflowSteps} />
+          <div>
+            <h1 className="text-xl font-semibold text-foreground">Mission Control</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">Live operations overview</p>
+          </div>
         </div>
-        <div className="bg-card rounded-lg border border-border p-5">
-          <h3 className="text-sm font-medium text-foreground mb-4">Workflow Success Rate</h3>
-          <div className="flex items-end gap-6 mt-2">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-success" />
-              <div>
-                <div className="text-2xl font-semibold text-foreground">94.2%</div>
-                <div className="text-xs text-muted-foreground">Success rate</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <XCircle className="w-5 h-5 text-destructive" />
-              <div>
-                <div className="text-2xl font-semibold text-foreground">5.8%</div>
-                <div className="text-xs text-muted-foreground">Failure rate</div>
-              </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex gap-3">
+        {[
+          { label: "Run Workflow", icon: Play, accent: true },
+          { label: "Install Module", icon: Package, accent: false },
+          { label: "Create Workflow", icon: Plus, accent: false },
+        ].map((action) => (
+          <button
+            key={action.label}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+              action.accent
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 glow-sm"
+                : "bg-secondary text-secondary-foreground border border-border hover:bg-accent hover:text-foreground"
+            )}
+          >
+            <action.icon className="w-4 h-4" />
+            {action.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Main split: Runs list + Pipeline view */}
+      <div className="flex gap-4 min-h-0" style={{ height: "calc(100vh - 220px)" }}>
+        {/* Active Runs List */}
+        <div className="w-80 flex-shrink-0 flex flex-col border border-border rounded-lg bg-card overflow-hidden">
+          <div className="px-4 py-3 border-b border-border bg-muted/30">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Runs</span>
+              <span className="text-xs text-muted-foreground">{activeRuns.length}</span>
             </div>
           </div>
-          {/* Simple bar chart */}
-          <div className="flex items-end gap-1 mt-6 h-20">
-            {[85, 92, 78, 95, 100, 88, 94, 97, 91, 100, 86, 93].map((v, i) => (
-              <div key={i} className="flex-1 rounded-sm bg-success/20 relative" style={{ height: `${v}%` }}>
-                <div className="absolute bottom-0 left-0 right-0 rounded-sm bg-success/60" style={{ height: `${v}%` }} />
-              </div>
+          <div className="flex-1 overflow-y-auto">
+            {activeRuns.map((run) => (
+              <button
+                key={run.id}
+                onClick={() => setSelectedRun(run.id)}
+                className={cn(
+                  "w-full text-left px-4 py-3 border-b border-border transition-colors",
+                  selectedRun === run.id
+                    ? "bg-accent/80"
+                    : "hover:bg-muted/30"
+                )}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="font-mono text-xs text-muted-foreground">{run.id}</span>
+                  <StatusBadge status={run.status} />
+                </div>
+                <div className="text-sm text-foreground font-medium">{run.workflow}</div>
+                <div className="text-xs text-muted-foreground mt-1">Started {run.startedAt}</div>
+
+                {/* Mini pipeline preview */}
+                <div className="flex items-center gap-1 mt-2">
+                  {run.steps.map((step, i) => (
+                    <div key={step.id} className="flex items-center gap-1">
+                      <div className={cn(
+                        "w-2 h-2 rounded-full",
+                        step.status === "success" && "bg-success",
+                        step.status === "running" && "bg-info animate-pulse-glow",
+                        step.status === "failed" && "bg-destructive",
+                        step.status === "pending" && "bg-muted-foreground/30",
+                      )} />
+                      {i < run.steps.length - 1 && <div className="w-2 h-px bg-border" />}
+                    </div>
+                  ))}
+                </div>
+              </button>
             ))}
           </div>
-          <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
-            <span>12h ago</span><span>now</span>
-          </div>
         </div>
-      </div>
 
-      {/* Recent Jobs */}
-      <div className="bg-card rounded-lg border border-border p-5">
-        <h3 className="text-sm font-medium text-foreground mb-4">Recent Jobs</h3>
-        <DataTable
-          columns={[
-            { key: "id", header: "Job ID", render: (j) => <span className="font-mono text-xs">{j.id}</span> },
-            { key: "module", header: "Module", render: (j) => <span className="font-mono text-xs">{j.module}</span> },
-            { key: "status", header: "Status", render: (j) => <StatusBadge status={j.status} /> },
-            { key: "started", header: "Started" },
-            { key: "duration", header: "Duration" },
-          ]}
-          data={recentJobs}
-        />
-      </div>
-
-      {/* Logs */}
-      <div className="bg-card rounded-lg border border-border p-5">
-        <h3 className="text-sm font-medium text-foreground mb-4">Recent Logs</h3>
-        <LogViewer logs={recentLogs} maxHeight="200px" />
+        {/* Pipeline Detail */}
+        <div className="flex-1 border border-border rounded-lg bg-card overflow-hidden flex flex-col">
+          {selected ? (
+            <>
+              <div className="px-5 py-3 border-b border-border bg-muted/30 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <div className="text-sm font-medium text-foreground">{selected.workflow}</div>
+                    <div className="text-xs text-muted-foreground font-mono">{selected.id} · started {selected.startedAt}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={selected.status} />
+                  <button
+                    onClick={() => setSelectedRun(null)}
+                    className="p-1 rounded hover:bg-muted transition-colors text-muted-foreground"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto p-5">
+                <PipelineView steps={selected.steps} />
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <ArrowRight className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p className="text-sm">Select a run to inspect the pipeline</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default MissionControl;
