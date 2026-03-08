@@ -18,15 +18,15 @@ export function StepTools({ selected, onToggle }: StepToolsProps) {
   return (
     <div className="text-center">
       <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-        Choose your tools
+        Choose your engines
       </h1>
       <p className="text-muted-foreground text-[15px] mt-2.5 mb-10">
-        Select the tools you'd like to install — add more anytime from the Tool Library
+        Select engines to install — add more anytime from the Engine Library
       </p>
 
       <div className="grid grid-cols-2 gap-4">
-        {tools.map((tool) => {
-          const isSelected = selected.includes(tool.id);
+        {engines.map((engine) => {
+          const isSelected = selected.includes(engine.id);
           return (
             <button
               key={tool.id}
