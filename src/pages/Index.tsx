@@ -3,6 +3,7 @@ import { StatusIndicator } from "@/components/StatusIndicator";
 import { Play, Plus, Puzzle, ArrowRight, Clock, Zap, Timer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 
 const activeAutomations = [
   { id: "1", name: "Token Scanner", status: "running" as const, lastRun: "2 min ago", trigger: "Every 10 minutes" },
@@ -20,6 +21,19 @@ const recentActivity = [
 ];
 
 const Home = () => {
+  const [onboarded, setOnboarded] = useState(() => {
+    return localStorage.getItem("clawos-onboarded") === "true";
+  });
+
+  const handleComplete = () => {
+    localStorage.setItem("clawos-onboarded", "true");
+    setOnboarded(true);
+  };
+
+  if (!onboarded) {
+    return <OnboardingWizard onComplete={handleComplete} />;
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-10">
       {/* Header */}
@@ -29,7 +43,7 @@ const Home = () => {
         transition={{ duration: 0.4 }}
       >
         <h1 className="text-2xl font-semibold text-foreground tracking-tight">
-          Good afternoon
+          Mission Control
         </h1>
         <p className="text-muted-foreground text-[15px] mt-1">
           3 automations running · All systems healthy
@@ -115,7 +129,7 @@ const Home = () => {
       >
         <h2 className="text-[15px] font-medium text-foreground mb-4">Recent Activity</h2>
         <div className="space-y-1">
-          {recentActivity.map((item, i) => (
+          {recentActivity.map((item) => (
             <div
               key={item.id}
               className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer group"
