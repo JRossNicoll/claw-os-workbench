@@ -8,47 +8,9 @@ import {
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-
-interface StepCondition {
-  expression: string;
-  onFalse: "skip_step" | "jump_to_step";
-  targetStepOrder?: number;
-}
-
-interface RetryPolicy {
-  maxRetries: number;
-  delaySeconds: number;
-}
-
-interface Step {
-  id: string;
-  name: string;
-  order: number;
-  status: "success" | "running" | "failed" | "pending" | "skipped" | "retrying";
-  duration?: string;
-  condition?: StepCondition;
-  retry?: RetryPolicy;
-  retryAttempt?: number;
-  skipped?: boolean;
-  logs?: { timestamp: string; level: "info" | "warn" | "error" | "debug"; message: string }[];
-}
-
-interface Automation {
-  id: string;
-  name: string;
-  description: string;
-  status: "active" | "inactive";
-  trigger: string;
-  triggerType: "schedule" | "event";
-  lastRun: string;
-  runs: number;
-  failureMode?: "stop_on_failure" | "continue_on_failure";
-  steps: Step[];
-  history: { id: string; status: "success" | "failed" | "running"; time: string; duration: string }[];
-  logs: { timestamp: string; level: "info" | "warn" | "error" | "debug"; message: string }[];
-}
-
-const automations: Automation[] = [];
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getWorkflows, runWorkflow, getWorkflowRuns, ApiError } from "@/lib/api";
+import { toast } from "sonner";
 
 const stepIcons: Record<string, typeof CheckCircle> = {
   success: CheckCircle,
@@ -80,17 +42,40 @@ const Automations = () => {
   const [detailTab, setDetailTab] = useState<"steps" | "history" | "logs">("steps");
   const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
-  const selected = automations.find((a) => a.id === selectedId);
+  const queryClient = useQueryClient();
+
+  const { data: workflowsData, isLoading, error } = useQuery({
+    queryKey: ["workflows"],
+    queryFn: getWorkflows,
+  });
+
+  const automations: any[] = Array.isArray(workflowsData) ? workflowsData : [];
+  const selected = automations.find((a: any) => a.id === selectedId);
+
+  const { data: runsData } = useQuery({
+    queryKey: ["workflow-runs", selectedId],
+    queryFn: () => getWorkflowRuns(selectedId!),
+    enabled: !!selectedId && detailTab === "history",
+  });
+
+  const runMutation = useMutation({
+    mutationFn: (id: string) => runWorkflow(id),
+    onSuccess: () => {
+      toast.success("Automation started");
+      queryClient.invalidateQueries({ queryKey: ["workflows"] });
+    },
+    onError: (err: ApiError) => toast.error(err.message),
+  });
 
   const toggleStep = (id: string) => setExpandedSteps((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  const runs: any[] = Array.isArray(runsData) ? runsData : [];
+
   if (selected) {
+    const steps = selected.steps || [];
+    const logs = selected.logs || [];
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="max-w-3xl mx-auto space-y-8"
-      >
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-3xl mx-auto space-y-8">
         <div>
           <button
             onClick={() => setSelectedId(null)}
@@ -102,13 +87,18 @@ const Automations = () => {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-xl font-semibold text-foreground">{selected.name}</h1>
-                <StatusIndicator status={selected.status} />
+                <StatusIndicator status={selected.status || "inactive"} />
               </div>
               <p className="text-sm text-muted-foreground mt-1">{selected.description}</p>
             </div>
             <div className="flex items-center gap-2">
-              <button className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
-                <Play className="w-3.5 h-3.5" /> Run now
+              <button
+                onClick={() => runMutation.mutate(selected.id)}
+                disabled={runMutation.isPending}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                {runMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                {runMutation.isPending ? "Starting..." : "Run now"}
               </button>
               <button className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
                 <MoreHorizontal className="w-4 h-4" />
@@ -138,16 +128,16 @@ const Automations = () => {
         <AnimatePresence mode="wait">
           {detailTab === "steps" && (
             <motion.div key="steps" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}>
-              {selected.steps.length > 0 ? (
+              {steps.length > 0 ? (
                 <div className="space-y-2">
-                  {selected.steps.map((step, i) => {
-                    const Icon = stepIcons[step.status];
+                  {steps.map((step: any, i: number) => {
+                    const Icon = stepIcons[step.status] || Clock;
                     const isExpanded = expandedSteps[step.id];
                     const hasDetails = step.condition || step.retry || step.logs;
-                    const isLast = i === selected.steps.length - 1;
+                    const isLast = i === steps.length - 1;
 
                     return (
-                      <div key={step.id} className="relative">
+                      <div key={step.id || i} className="relative">
                         {!isLast && (
                           <div className={cn(
                             "absolute left-[19px] w-px z-0 top-[44px] h-[calc(100%-28px)]",
@@ -162,62 +152,13 @@ const Automations = () => {
                             hasDetails && "cursor-pointer hover:border-primary/15"
                           )}
                         >
-                          <Icon className={cn("w-5 h-5 flex-shrink-0", stepColors[step.status], (step.status === "running" || step.status === "retrying") && "animate-spin")} />
+                          <Icon className={cn("w-5 h-5 flex-shrink-0", stepColors[step.status] || "text-muted-foreground", (step.status === "running" || step.status === "retrying") && "animate-spin")} />
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className={cn("text-sm text-foreground", step.skipped && "line-through text-muted-foreground")}>{step.name}</span>
-                              {step.skipped && <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">skipped</span>}
-                              {step.status === "retrying" && step.retryAttempt && (
-                                <span className="text-[10px] text-warning bg-warning/10 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                  <RotateCcw className="w-2.5 h-2.5" /> retry {step.retryAttempt}/{step.retry?.maxRetries}
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 mt-1">
-                              {step.condition && <span className="text-[10px] text-muted-foreground flex items-center gap-1"><GitBranch className="w-2.5 h-2.5" /> Conditional</span>}
-                              {step.retry && <span className="text-[10px] text-muted-foreground flex items-center gap-1"><RotateCcw className="w-2.5 h-2.5" /> {step.retry.maxRetries} retries</span>}
-                            </div>
+                            <span className={cn("text-sm text-foreground", step.skipped && "line-through text-muted-foreground")}>{step.name}</span>
                           </div>
                           {step.duration && <span className="text-xs text-muted-foreground">{step.duration}</span>}
                           {hasDetails && <ChevronRight className={cn("w-3.5 h-3.5 text-muted-foreground/40 transition-transform", isExpanded && "rotate-90")} />}
                         </button>
-
-                        <AnimatePresence>
-                          {isExpanded && (
-                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
-                              <div className="ml-[38px] mt-1 space-y-2 pb-1">
-                                {step.condition && (
-                                  <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-2">
-                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium uppercase tracking-wider"><GitBranch className="w-3 h-3" /> Condition</div>
-                                    <code className="text-[11px] font-mono text-foreground/80 bg-background px-2 py-1 rounded block">{step.condition.expression}</code>
-                                    <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-                                      {step.condition.onFalse === "skip_step" ? <><SkipForward className="w-3 h-3" /> If false: skip this step</> : <><ArrowDownRight className="w-3 h-3" /> If false: jump to step {step.condition.targetStepOrder}</>}
-                                    </div>
-                                  </div>
-                                )}
-                                {step.retry && (
-                                  <div className="p-3 rounded-lg bg-muted/40 border border-border space-y-1">
-                                    <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium uppercase tracking-wider"><RotateCcw className="w-3 h-3" /> Retry Policy</div>
-                                    <div className="text-[11px] text-foreground/80">Up to {step.retry.maxRetries} retries · {step.retry.delaySeconds}s delay</div>
-                                  </div>
-                                )}
-                                {step.logs && step.logs.length > 0 && (
-                                  <div className="bg-terminal-bg rounded-lg border border-border overflow-hidden">
-                                    <div className="p-3 font-mono text-[11px] space-y-0.5 max-h-40 overflow-y-auto terminal-scrollbar">
-                                      {step.logs.map((log, j) => (
-                                        <div key={j} className="flex gap-2 leading-5">
-                                          <span className="text-terminal-dim">{log.timestamp}</span>
-                                          <span className={cn("w-12", levelColors[log.level])}>[{log.level}]</span>
-                                          <span className="text-terminal-text">{log.message}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
                       </div>
                     );
                   })}
@@ -230,13 +171,37 @@ const Automations = () => {
 
           {detailTab === "history" && (
             <motion.div key="history" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}>
-              <p className="text-sm text-muted-foreground py-8 text-center">No execution history yet</p>
+              {runs.length > 0 ? (
+                <div className="space-y-2">
+                  {runs.map((run: any, i: number) => (
+                    <div key={run.id || i} className="flex items-center gap-4 p-4 rounded-xl surface-elevated">
+                      <div className={cn("w-2 h-2 rounded-full", run.status === "success" ? "bg-success" : run.status === "failed" ? "bg-destructive" : "bg-info")} />
+                      <span className="text-sm text-foreground flex-1">{run.status}</span>
+                      <span className="text-xs text-muted-foreground">{run.duration || run.time}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground py-8 text-center">No execution history yet</p>
+              )}
             </motion.div>
           )}
 
           {detailTab === "logs" && (
             <motion.div key="logs" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}>
-              <p className="text-sm text-muted-foreground py-8 text-center">No logs available</p>
+              {logs.length > 0 ? (
+                <div className="bg-terminal-bg rounded-lg border border-border p-4 font-mono text-[11px] space-y-0.5 max-h-60 overflow-y-auto terminal-scrollbar">
+                  {logs.map((log: any, j: number) => (
+                    <div key={j} className="flex gap-2 leading-5">
+                      <span className="text-terminal-dim">{log.timestamp}</span>
+                      <span className={cn("w-12", levelColors[log.level] || "text-muted-foreground")}>[{log.level}]</span>
+                      <span className="text-terminal-text">{log.message}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground py-8 text-center">No logs available</p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -274,9 +239,18 @@ const Automations = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.05 }}
       >
-        {automations.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 rounded-2xl surface-elevated">
+            <p className="text-sm text-destructive mb-1">Failed to load automations</p>
+            <p className="text-xs text-muted-foreground">{(error as ApiError)?.message || "Check your API connection"}</p>
+          </div>
+        ) : automations.length > 0 ? (
           <div className="space-y-2">
-            {automations.map((auto, i) => (
+            {automations.map((auto: any, i: number) => (
               <motion.div
                 key={auto.id}
                 initial={{ opacity: 0, y: 4 }}
@@ -290,7 +264,7 @@ const Automations = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1">
                       <span className="text-sm font-medium text-foreground">{auto.name}</span>
-                      <StatusIndicator status={auto.status} />
+                      <StatusIndicator status={auto.status || "inactive"} />
                     </div>
                     <p className="text-xs text-muted-foreground">{auto.description}</p>
                   </div>

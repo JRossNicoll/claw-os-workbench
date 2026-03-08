@@ -1,7 +1,10 @@
 import { useState } from "react";
-import { Cog, Download, Check, Github, ArrowLeft, Shield, ChevronRight } from "lucide-react";
+import { Cog, Download, Check, Github, ArrowLeft, Shield, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getEngines, installEngine, ApiError } from "@/lib/api";
+import { toast } from "sonner";
 
 interface ConfigField {
   key: string;
@@ -21,93 +24,38 @@ interface Engine {
   verified: boolean;
   installed: boolean;
   dependencies?: string[];
+  config_schema?: ConfigField[];
   configSchema?: ConfigField[];
 }
-
-const engines: Engine[] = [
-  {
-    id: "market-scanner", name: "Market Scanner", description: "Scan markets for token launches, price movements, and volume spikes across multiple chains",
-    category: "Monitoring", version: "2.1.0", verified: true, installed: false,
-    dependencies: ["Price Oracle"],
-    configSchema: [
-      { key: "chains", label: "Chains to monitor", type: "text", placeholder: "ethereum, polygon, arbitrum", required: true },
-      { key: "interval", label: "Scan interval (seconds)", type: "number", placeholder: "600" },
-      { key: "min_volume", label: "Minimum volume ($)", type: "number", placeholder: "50000" },
-    ],
-  },
-  {
-    id: "telegram-alerts", name: "Telegram Alerts", description: "Send formatted alerts and reports to Telegram channels and groups",
-    category: "Notifications", version: "1.4.2", verified: true, installed: false,
-    configSchema: [
-      { key: "bot_token", label: "Bot token", type: "text", placeholder: "123456:ABC-DEF...", required: true },
-      { key: "chat_id", label: "Chat ID", type: "text", placeholder: "-1001234567890", required: true },
-      { key: "parse_mode", label: "Parse mode", type: "select", options: ["HTML", "Markdown", "MarkdownV2"] },
-    ],
-  },
-  {
-    id: "ai-assistant", name: "AI Assistant", description: "Intelligent reasoning engine for data analysis, summarization, and decision support",
-    category: "AI", version: "3.0.1", verified: true, installed: false,
-    dependencies: ["Data Pipeline"],
-    configSchema: [
-      { key: "model", label: "Model", type: "select", options: ["gpt-4o", "claude-3.5-sonnet", "llama-3.1"], required: true },
-      { key: "max_tokens", label: "Max tokens", type: "number", placeholder: "4096" },
-      { key: "temperature", label: "Temperature", type: "number", placeholder: "0.7" },
-    ],
-  },
-  {
-    id: "website-monitor", name: "Website Monitor", description: "Monitor websites for uptime, content changes, and performance degradation",
-    category: "Monitoring", version: "1.2.0", verified: true, installed: false,
-    configSchema: [
-      { key: "url", label: "URL to monitor", type: "text", placeholder: "https://example.com", required: true },
-      { key: "check_interval", label: "Check interval (seconds)", type: "number", placeholder: "300" },
-    ],
-  },
-  {
-    id: "data-pipeline", name: "Data Pipeline", description: "ETL engine for transforming and routing data between sources and destinations",
-    category: "Data", version: "2.0.0", verified: true, installed: false,
-    configSchema: [
-      { key: "buffer_size", label: "Buffer size", type: "number", placeholder: "1000" },
-    ],
-  },
-  {
-    id: "discord-alerts", name: "Discord Alerts", description: "Post formatted alerts and embeds to Discord channels via webhooks",
-    category: "Notifications", version: "1.1.0", verified: false, installed: false,
-    configSchema: [
-      { key: "webhook_url", label: "Webhook URL", type: "text", placeholder: "https://discord.com/api/webhooks/...", required: true },
-    ],
-  },
-  {
-    id: "k8s-deployer", name: "K8s Deployer", description: "Deploy and manage Kubernetes workloads with rollback support",
-    category: "DevOps", version: "1.0.0", verified: false, installed: false,
-    configSchema: [
-      { key: "cluster", label: "Cluster name", type: "text", required: true },
-      { key: "namespace", label: "Namespace", type: "text", placeholder: "default" },
-    ],
-  },
-  {
-    id: "price-oracle", name: "Price Oracle", description: "Multi-source price aggregation with TWAP, VWAP, and weighted median",
-    category: "Data", version: "1.8.0", verified: true, installed: false,
-    configSchema: [
-      { key: "sources", label: "Price sources", type: "text", placeholder: "binance, coinbase, kraken" },
-      { key: "update_interval", label: "Update interval (seconds)", type: "number", placeholder: "60" },
-    ],
-  },
-  {
-    id: "cron-scheduler", name: "Cron Scheduler", description: "Schedule recurring tasks with cron expressions and timezone support",
-    category: "Automation", version: "1.3.0", verified: true, installed: false,
-    configSchema: [
-      { key: "timezone", label: "Timezone", type: "text", placeholder: "UTC" },
-    ],
-  },
-];
 
 const categories = ["All", "AI", "Monitoring", "Notifications", "Data", "Automation", "DevOps"];
 
 const Engines = () => {
+  const queryClient = useQueryClient();
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [configValues, setConfigValues] = useState<Record<string, any>>({});
+
+  const { data: enginesData, isLoading, error } = useQuery({
+    queryKey: ["engines"],
+    queryFn: getEngines,
+  });
+
+  const engines: Engine[] = Array.isArray(enginesData) ? enginesData : [];
   const selected = engines.find((e) => e.id === selectedId);
+
+  const installMutation = useMutation({
+    mutationFn: (engineId: string) => installEngine(engineId, configValues),
+    onSuccess: () => {
+      toast.success(`${selected?.name || "Engine"} installed successfully`);
+      queryClient.invalidateQueries({ queryKey: ["engines"] });
+      setConfigValues({});
+    },
+    onError: (err: ApiError) => {
+      toast.error(err.message);
+    },
+  });
 
   const filtered = engines.filter((e) => {
     if (activeCategory !== "All" && e.category !== activeCategory) return false;
@@ -117,11 +65,12 @@ const Engines = () => {
 
   // Detail view
   if (selected) {
+    const schema = selected.config_schema || selected.configSchema || [];
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto space-y-8">
         <div>
           <button
-            onClick={() => setSelectedId(null)}
+            onClick={() => { setSelectedId(null); setConfigValues({}); }}
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-5"
           >
             <ArrowLeft className="w-3 h-3" /> Engine Library
@@ -143,13 +92,23 @@ const Engines = () => {
                 <span>{selected.category}</span>
               </div>
             </div>
-            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors">
-              <Download className="w-3 h-3" /> Install
+            <button
+              onClick={() => installMutation.mutate(selected.id)}
+              disabled={installMutation.isPending || selected.installed}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {installMutation.isPending ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : selected.installed ? (
+                <Check className="w-3 h-3" />
+              ) : (
+                <Download className="w-3 h-3" />
+              )}
+              {installMutation.isPending ? "Installing..." : selected.installed ? "Installed" : "Install"}
             </button>
           </div>
         </div>
 
-        {/* Dependencies */}
         {selected.dependencies && selected.dependencies.length > 0 && (
           <div>
             <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Dependencies</h3>
@@ -161,19 +120,22 @@ const Engines = () => {
           </div>
         )}
 
-        {/* Config schema */}
-        {selected.configSchema && selected.configSchema.length > 0 && (
+        {schema.length > 0 && (
           <div>
             <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Configuration</h3>
             <div className="space-y-3">
-              {selected.configSchema.map((field) => (
+              {schema.map((field) => (
                 <div key={field.key} className="space-y-1.5">
                   <label className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
                     {field.label}
                     {field.required && <span className="text-primary text-[10px]">required</span>}
                   </label>
                   {field.type === "select" ? (
-                    <select className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary/30 transition-colors font-mono">
+                    <select
+                      value={configValues[field.key] || ""}
+                      onChange={(e) => setConfigValues((v) => ({ ...v, [field.key]: e.target.value }))}
+                      className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary/30 transition-colors font-mono"
+                    >
                       <option value="">Select...</option>
                       {field.options?.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
                     </select>
@@ -181,6 +143,8 @@ const Engines = () => {
                     <input
                       type={field.type === "number" ? "number" : "text"}
                       placeholder={field.placeholder}
+                      value={configValues[field.key] || ""}
+                      onChange={(e) => setConfigValues((v) => ({ ...v, [field.key]: e.target.value }))}
                       className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/30 transition-colors font-mono"
                     />
                   )}
@@ -244,25 +208,42 @@ const Engines = () => {
         transition={{ duration: 0.5, delay: 0.12, ease: [0.16, 1, 0.3, 1] }}
         className="space-y-2"
       >
-        {filtered.map((engine) => (
-          <button
-            key={engine.id}
-            onClick={() => setSelectedId(engine.id)}
-            className="w-full flex items-center gap-4 p-4 rounded-lg surface-elevated hover:border-primary/20 transition-all duration-200 text-left group"
-          >
-            <Cog className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[13px] font-medium text-foreground">{engine.name}</span>
-                {engine.verified && <Shield className="w-3 h-3 text-primary/60" />}
-                <span className="text-[10px] text-muted-foreground/50">v{engine.version}</span>
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 rounded-lg surface-elevated">
+            <p className="text-sm text-destructive mb-1">Failed to load engines</p>
+            <p className="text-xs text-muted-foreground">{(error as ApiError)?.message || "Check your API connection"}</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 rounded-lg surface-elevated">
+            <Cog className="w-8 h-8 text-muted-foreground/20 mb-3" />
+            <p className="text-sm text-muted-foreground">No engines found</p>
+          </div>
+        ) : (
+          filtered.map((engine) => (
+            <button
+              key={engine.id}
+              onClick={() => setSelectedId(engine.id)}
+              className="w-full flex items-center gap-4 p-4 rounded-lg surface-elevated hover:border-primary/20 transition-all duration-200 text-left group"
+            >
+              <Cog className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] font-medium text-foreground">{engine.name}</span>
+                  {engine.verified && <Shield className="w-3 h-3 text-primary/60" />}
+                  {engine.installed && <Check className="w-3 h-3 text-success" />}
+                  <span className="text-[10px] text-muted-foreground/50">v{engine.version}</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{engine.description}</p>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{engine.description}</p>
-            </div>
-            <span className="text-[10px] text-muted-foreground/40 px-2 py-0.5 rounded bg-card">{engine.category}</span>
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors" />
-          </button>
-        ))}
+              <span className="text-[10px] text-muted-foreground/40 px-2 py-0.5 rounded bg-card">{engine.category}</span>
+              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors" />
+            </button>
+          ))
+        )}
       </motion.div>
     </div>
   );
