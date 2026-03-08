@@ -1,30 +1,22 @@
 import { NavLink, useLocation } from "react-router-dom";
 import {
-  Radar,
-  Package,
-  GitBranch,
-  Play,
-  Clock,
-  Zap,
-  Store,
+  Home,
+  Layers,
+  Puzzle,
+  Activity,
   Lock,
-  ScrollText,
   Settings,
   ChevronLeft,
-  Terminal,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { title: "Mission Control", icon: Radar, path: "/" },
-  { title: "Workflows", icon: GitBranch, path: "/workflows" },
-  { title: "Jobs", icon: Play, path: "/jobs" },
-  { title: "Modules", icon: Package, path: "/modules" },
-  { title: "Marketplace", icon: Store, path: "/registry" },
-  { title: "Schedules", icon: Clock, path: "/schedules" },
-  { title: "Triggers", icon: Zap, path: "/triggers" },
-  { title: "Vault", icon: Lock, path: "/secrets" },
-  { title: "Logs", icon: ScrollText, path: "/logs" },
+  { title: "Home", icon: Home, path: "/" },
+  { title: "Automations", icon: Layers, path: "/automations" },
+  { title: "Tools", icon: Puzzle, path: "/tools" },
+  { title: "Activity", icon: Activity, path: "/activity" },
+  { title: "Secrets", icon: Lock, path: "/secrets" },
   { title: "Settings", icon: Settings, path: "/settings" },
 ];
 
@@ -39,41 +31,41 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
   return (
     <aside
       className={cn(
-        "h-screen sticky top-0 flex flex-col border-r border-border bg-sidebar transition-all duration-200",
-        collapsed ? "w-16" : "w-56"
+        "h-screen sticky top-0 flex flex-col bg-sidebar transition-all duration-300 ease-in-out",
+        collapsed ? "w-[60px]" : "w-[200px]"
       )}
     >
       {/* Logo */}
-      <div className="h-14 flex items-center px-4 border-b border-border gap-2">
-        <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center flex-shrink-0 glow-sm">
-          <Terminal className="w-4 h-4 text-primary" />
+      <div className="h-14 flex items-center px-4 gap-2.5">
+        <div className="w-7 h-7 rounded-lg bg-primary/15 flex items-center justify-center flex-shrink-0">
+          <Sparkles className="w-3.5 h-3.5 text-primary" />
         </div>
         {!collapsed && (
-          <span className="font-semibold text-foreground tracking-tight text-sm">
-            Claw<span className="text-primary">OS</span>
+          <span className="font-semibold text-foreground tracking-tight text-[15px]">
+            ClawOS
           </span>
         )}
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 py-4 px-2.5 space-y-1">
         {navItems.map((item) => {
-          const isActive = location.pathname === item.path || 
+          const isActive = location.pathname === item.path ||
             (item.path !== "/" && location.pathname.startsWith(item.path));
           return (
             <NavLink
               key={item.path}
               to={item.path}
               className={cn(
-                "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors group",
+                "flex items-center gap-3 px-2.5 py-[9px] rounded-lg text-[13px] font-medium transition-all duration-200",
                 isActive
-                  ? "bg-accent text-foreground"
-                  : "text-sidebar-foreground hover:bg-accent/50 hover:text-foreground"
+                  ? "bg-primary/10 text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               )}
             >
               <item.icon className={cn(
-                "w-4 h-4 flex-shrink-0",
-                isActive ? "text-primary" : "text-sidebar-foreground group-hover:text-foreground"
+                "w-[18px] h-[18px] flex-shrink-0 transition-colors",
+                isActive ? "text-primary" : ""
               )} />
               {!collapsed && <span>{item.title}</span>}
             </NavLink>
@@ -81,26 +73,12 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
         })}
       </nav>
 
-      {/* System status */}
-      {!collapsed && (
-        <div className="px-4 py-3 border-t border-border">
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse-glow" />
-            <span>4 workers online</span>
-          </div>
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-info animate-pulse-glow" />
-            <span>3 runs active</span>
-          </div>
-        </div>
-      )}
-
-      {/* Collapse toggle */}
+      {/* Collapse */}
       <button
         onClick={onToggle}
-        className="h-10 flex items-center justify-center border-t border-border text-muted-foreground hover:text-foreground transition-colors"
+        className="h-10 mx-2.5 mb-2 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
       >
-        <ChevronLeft className={cn("w-4 h-4 transition-transform", collapsed && "rotate-180")} />
+        <ChevronLeft className={cn("w-4 h-4 transition-transform duration-300", collapsed && "rotate-180")} />
       </button>
     </aside>
   );

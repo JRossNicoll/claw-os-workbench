@@ -1,4 +1,4 @@
-import { Search, Bell, User, Circle } from "lucide-react";
+import { Search, Bell, User } from "lucide-react";
 
 interface TopBarProps {
   onToggleSidebar: () => void;
@@ -6,37 +6,28 @@ interface TopBarProps {
 
 export function TopBar({ onToggleSidebar }: TopBarProps) {
   return (
-    <header className="h-14 border-b border-border flex items-center justify-between px-6 bg-background/80 backdrop-blur-sm sticky top-0 z-10">
+    <header className="h-14 flex items-center justify-between px-6 sticky top-0 z-10 bg-background/60 backdrop-blur-xl">
       {/* Search */}
-      <div className="flex items-center gap-2 bg-muted rounded-md px-3 py-1.5 w-72">
-        <Search className="w-4 h-4 text-muted-foreground" />
+      <div className="flex items-center gap-2 bg-muted/60 rounded-lg px-3.5 py-2 w-64 group focus-within:bg-muted focus-within:ring-1 focus-within:ring-primary/30 transition-all">
+        <Search className="w-3.5 h-3.5 text-muted-foreground" />
         <input
-          placeholder="Search modules, workflows, jobs..."
-          className="bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground w-full"
+          placeholder="Search..."
+          className="bg-transparent border-none outline-none text-[13px] text-foreground placeholder:text-muted-foreground w-full"
         />
-        <kbd className="hidden sm:inline text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5 font-mono">
+        <kbd className="hidden sm:inline text-[10px] text-muted-foreground/60 border border-border rounded px-1.5 py-0.5">
           ⌘K
         </kbd>
       </div>
 
-      {/* Right side */}
-      <div className="flex items-center gap-4">
-        {/* System status */}
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Circle className="w-2 h-2 fill-success text-success" />
-          <span className="hidden sm:inline">All systems operational</span>
-        </div>
-
-        {/* Notifications */}
-        <button className="relative p-2 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+      {/* Right */}
+      <div className="flex items-center gap-1">
+        <button className="relative p-2.5 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
           <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary" />
+          <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-primary" />
         </button>
-
-        {/* User */}
-        <button className="flex items-center gap-2 p-1 rounded-md hover:bg-muted transition-colors">
-          <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center">
-            <User className="w-3.5 h-3.5 text-muted-foreground" />
+        <button className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+          <div className="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center">
+            <User className="w-3.5 h-3.5 text-primary" />
           </div>
         </button>
       </div>
