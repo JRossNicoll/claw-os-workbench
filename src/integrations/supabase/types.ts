@@ -14,7 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agents: {
+        Row: {
+          created_at: string
+          description: string
+          engine: string
+          id: string
+          last_run: string | null
+          memory: string | null
+          model: string | null
+          name: string
+          status: string
+          success_rate: number
+          total_runs: number
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          engine?: string
+          id?: string
+          last_run?: string | null
+          memory?: string | null
+          model?: string | null
+          name: string
+          status?: string
+          success_rate?: number
+          total_runs?: number
+          type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          engine?: string
+          id?: string
+          last_run?: string | null
+          memory?: string | null
+          model?: string | null
+          name?: string
+          status?: string
+          success_rate?: number
+          total_runs?: number
+          type?: string
+        }
+        Relationships: []
+      }
+      automation_steps: {
+        Row: {
+          automation_id: string
+          condition: string | null
+          duration: string | null
+          id: string
+          name: string
+          retry_config: Json | null
+          status: string
+          step_order: number
+        }
+        Insert: {
+          automation_id: string
+          condition?: string | null
+          duration?: string | null
+          id?: string
+          name: string
+          retry_config?: Json | null
+          status?: string
+          step_order?: number
+        }
+        Update: {
+          automation_id?: string
+          condition?: string | null
+          duration?: string | null
+          id?: string
+          name?: string
+          retry_config?: Json | null
+          status?: string
+          step_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_steps_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automations: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          last_run: string | null
+          name: string
+          status: string
+          total_runs: number
+          trigger: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id?: string
+          last_run?: string | null
+          name: string
+          status?: string
+          total_runs?: number
+          trigger?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          last_run?: string | null
+          name?: string
+          status?: string
+          total_runs?: number
+          trigger?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
