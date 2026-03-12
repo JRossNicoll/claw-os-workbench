@@ -5,7 +5,7 @@ import { WorkspaceNav } from "./WorkspaceNav";
 import { useActivity, timeAgo } from "@/hooks/use-activity";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { resetOnboarding } from "@/lib/store";
+
 
 export function CommandBar() {
   const navigate = useNavigate();
