@@ -4,7 +4,7 @@ import { StepPurpose } from "./StepPurpose";
 import { StepEngines } from "./StepEngines";
 import { StepIntegrations } from "./StepIntegrations";
 import { StepFirstAutomation } from "./StepFirstAutomation";
-import { Hexagon } from "lucide-react";
+import logoImg from "@/assets/logo.webp";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
