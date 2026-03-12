@@ -61,12 +61,13 @@ export function CommandBar() {
       </div>
 
       {/* Search — responsive */}
+      <div className="flex-1" />
       <motion.button
         onClick={openSearch}
         whileHover={{ scale: 1.01, borderColor: "hsl(var(--primary) / 0.25)" }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-1.5 w-10 sm:w-48 md:w-72 group cursor-pointer mx-2 sm:mx-0"
+        className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-1.5 w-10 sm:w-48 md:w-72 group cursor-pointer mr-2"
       >
         <Search className="w-3.5 h-3.5 sm:w-3 sm:h-3 text-muted-foreground flex-shrink-0" />
         <span className="text-xs text-muted-foreground/50 flex-1 text-left hidden sm:inline truncate">Search or ⌘K...</span>
