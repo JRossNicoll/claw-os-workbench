@@ -38,7 +38,7 @@ export function CommandBar() {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="h-12 flex items-center justify-between px-4 sm:px-8 md:px-12 sticky top-0 z-20 bg-background/80 backdrop-blur-2xl"
+      className="h-12 flex items-center justify-between px-4 sm:px-8 md:px-12 sticky top-0 z-20 bg-background/80 backdrop-blur-2xl border-b border-red-subtle"
     >
       {/* Brand + Nav */}
       <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
