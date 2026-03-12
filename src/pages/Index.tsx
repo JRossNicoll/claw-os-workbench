@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { Plus, Play, ArrowRight, Layers, Clock, Cog, Zap, CheckCircle, Download, Wifi, AlertTriangle, Loader2 } from "lucide-react";
+import { Plus, Play, ArrowRight, Layers, Clock, Cog, Zap, CheckCircle, Download, Wifi, AlertTriangle, Bot } from "lucide-react";
 import { motion } from "framer-motion";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useEventStream } from "@/hooks/use-event-stream";
-import { useQuery } from "@tanstack/react-query";
-import { getWorkflows } from "@/lib/api";
+import { isOnboarded, getAutomations, getAgents, getEvents, getMetrics } from "@/lib/store";
 
 const eventIcons: Record<string, typeof CheckCircle> = {
   installed: Download,
@@ -26,30 +24,24 @@ const eventColors: Record<string, string> = {
 
 const Home = () => {
   const navigate = useNavigate();
-  const [onboarded, setOnboarded] = useState(() => localStorage.getItem("clawos-onboarded") === "true");
-  const { events: liveEvents, connected: wsConnected } = useEventStream(onboarded);
-
-  const { data: workflowsData, isLoading: workflowsLoading } = useQuery({
-    queryKey: ["workflows"],
-    queryFn: getWorkflows,
-    enabled: onboarded,
-  });
-
-  const automations: any[] = Array.isArray(workflowsData) ? workflowsData : [];
-  const activeAutomations = automations.filter((a: any) => a.status === "active");
+  const [onboarded, setOnboarded] = useState(isOnboarded);
+  const [, setTick] = useState(0);
 
   const handleComplete = () => {
-    localStorage.setItem("clawos-onboarded", "true");
     setOnboarded(true);
+    setTick((t) => t + 1);
   };
 
   if (!onboarded) {
     return <OnboardingWizard onComplete={handleComplete} />;
   }
 
-  const recentEvents = liveEvents.length > 0 ? liveEvents.slice(0, 5) : [
-    { id: "placeholder-1", type: "info", message: "Waiting for live events...", timestamp: "now" },
-  ];
+  const automations = getAutomations();
+  const agents = getAgents();
+  const events = getEvents();
+  const metrics = getMetrics();
+  const activeAutomations = automations.filter((a) => a.status === "active");
+  const activeAgents = agents.filter((a) => a.status === "active");
 
   return (
     <div className="max-w-3xl mx-auto space-y-10">
@@ -60,22 +52,38 @@ const Home = () => {
             <p className="text-sm text-muted-foreground mt-1">Your automation command center</p>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className={cn("w-1.5 h-1.5 rounded-full", wsConnected ? "bg-success animate-pulse" : "bg-muted-foreground/30")} />
-            <span className="text-[10px] text-muted-foreground">{wsConnected ? "Live" : "Connecting..."}</span>
+            <div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+            <span className="text-[10px] text-muted-foreground">Live</span>
           </div>
         </div>
       </motion.div>
 
-      {/* Quick Actions */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.04 }} className="grid grid-cols-3 gap-2.5">
+      {/* Metrics Strip */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.02 }} className="grid grid-cols-4 gap-2.5">
         {[
-          { label: "Create Automation", icon: Plus, path: "/automations" },
+          { label: "Active Workflows", value: metrics.active_workflows, color: "text-success" },
+          { label: "Running Jobs", value: metrics.running_jobs, color: "text-info" },
+          { label: "Active Agents", value: metrics.active_agents, color: "text-primary" },
+          { label: "Containers", value: metrics.runtime_containers, color: "text-warning" },
+        ].map((m) => (
+          <div key={m.label} className="p-3.5 rounded-lg surface-elevated text-center">
+            <div className={cn("text-lg font-semibold font-mono", m.color)}>{m.value}</div>
+            <div className="text-[10px] text-muted-foreground mt-0.5">{m.label}</div>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* Quick Actions */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.04 }} className="grid grid-cols-4 gap-2.5">
+        {[
+          { label: "New Automation", icon: Plus, path: "/automations" },
           { label: "Install Engine", icon: Cog, path: "/engines" },
-          { label: "Run Task", icon: Play, path: "" },
+          { label: "View Agents", icon: Bot, path: "/agents" },
+          { label: "View Runs", icon: Play, path: "/runs" },
         ].map((action) => (
           <button
             key={action.label}
-            onClick={() => action.path && navigate(action.path)}
+            onClick={() => navigate(action.path)}
             className="flex items-center gap-3 p-3.5 rounded-lg surface-elevated hover:border-primary/20 transition-all duration-200 text-left"
           >
             <action.icon className="w-3.5 h-3.5 text-primary flex-shrink-0" />
@@ -92,17 +100,13 @@ const Home = () => {
             View all <ArrowRight className="w-2.5 h-2.5" />
           </button>
         </div>
-        {workflowsLoading ? (
-          <div className="flex items-center justify-center py-12 rounded-lg surface-elevated">
-            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-          </div>
-        ) : activeAutomations.length > 0 ? (
+        {activeAutomations.length > 0 ? (
           <div className="space-y-1">
-            {activeAutomations.slice(0, 4).map((auto: any) => (
+            {activeAutomations.slice(0, 4).map((auto) => (
               <div key={auto.id} className="flex items-center gap-3 p-3 rounded-lg surface-elevated">
                 <div className="w-1.5 h-1.5 rounded-full bg-success" />
                 <span className="text-xs text-foreground flex-1">{auto.name}</span>
-                <span className="text-[10px] text-muted-foreground/40">{auto.trigger || "active"}</span>
+                <span className="text-[10px] text-muted-foreground/40">{auto.trigger}</span>
               </div>
             ))}
           </div>
@@ -117,6 +121,27 @@ const Home = () => {
         )}
       </motion.div>
 
+      {/* Active Agents */}
+      {activeAgents.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Active Agents</h2>
+            <button onClick={() => navigate("/agents")} className="text-[11px] text-muted-foreground/50 hover:text-foreground transition-colors flex items-center gap-1">
+              View all <ArrowRight className="w-2.5 h-2.5" />
+            </button>
+          </div>
+          <div className="space-y-1">
+            {activeAgents.slice(0, 3).map((agent) => (
+              <div key={agent.id} className="flex items-center gap-3 p-3 rounded-lg surface-elevated">
+                <Bot className="w-3 h-3 text-primary" />
+                <span className="text-xs text-foreground flex-1">{agent.name}</span>
+                <span className="text-[10px] text-muted-foreground/40">{agent.model}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       {/* Live Activity Feed */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.12 }}>
         <div className="flex items-center justify-between mb-3">
@@ -126,7 +151,7 @@ const Home = () => {
           </button>
         </div>
         <div className="space-y-1">
-          {recentEvents.map((event) => {
+          {events.slice(0, 5).map((event) => {
             const Icon = eventIcons[event.type] || Zap;
             const color = eventColors[event.type] || "text-muted-foreground";
             return (
