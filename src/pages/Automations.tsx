@@ -38,21 +38,22 @@ const levelColors: Record<string, string> = {
 
 const Automations = () => {
   const { data: automations = [], isLoading } = useAutomations();
+  const runMutation = useRunAutomation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<"steps" | "history" | "logs">("steps");
-  const [running, setRunning] = useState(false);
   const navigate = useNavigate();
 
   const selected = automations.find((a) => a.id === selectedId);
+  const { data: runs = [] } = useRuns(selectedId || undefined);
 
   const handleRun = (id: string) => {
-    setRunning(true);
-    runAutomation(id);
-    toast.success("Automation started");
-    setTimeout(() => setRunning(false), 2500);
+    const auto = automations.find((a) => a.id === id);
+    if (!auto) return;
+    runMutation.mutate(
+      { id: auto.id, name: auto.name, stepsCount: auto.steps.length },
+      { onSuccess: () => toast.success("Automation started") }
+    );
   };
-
-  const runs = getRuns().filter((r) => r.automationId === selectedId);
 
   if (isLoading) {
     return (
