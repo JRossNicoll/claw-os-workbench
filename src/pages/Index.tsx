@@ -167,7 +167,7 @@ const Home = () => {
               <div key={event.id} className="flex items-center gap-3 p-3 rounded-lg surface-elevated">
                 <Icon className={cn("w-3 h-3 flex-shrink-0", color)} />
                 <span className="text-xs text-foreground flex-1">{event.message}</span>
-                <span className="text-[10px] text-muted-foreground/40">{event.timestamp}</span>
+                <span className="text-[10px] text-muted-foreground/40">{timeAgo(event.created_at)}</span>
               </div>
             );
           })}
