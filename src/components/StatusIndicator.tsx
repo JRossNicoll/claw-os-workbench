@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
 interface StatusIndicatorProps {
-  status: "running" | "success" | "failed" | "pending" | "active" | "inactive" | "skipped" | "retrying";
+  status: "running" | "success" | "failed" | "pending" | "active" | "inactive" | "skipped" | "retrying" | "error";
   children?: ReactNode;
   size?: "sm" | "md";
 }
