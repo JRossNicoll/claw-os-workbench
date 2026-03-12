@@ -117,7 +117,7 @@
 /* Global scrollbar styling */
 * {
   scrollbar-width: thin;
-  scrollbar-color: hsl(var(--border)) transparent;
+  scrollbar-color: hsl(var(--border-accent) / 0.15) transparent;
 }
 *::-webkit-scrollbar {
   width: 6px;
