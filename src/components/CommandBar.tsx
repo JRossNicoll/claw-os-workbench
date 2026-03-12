@@ -178,7 +178,7 @@ export function CommandBar() {
                 <button
                   onClick={() => {
                     setProfileOpen(false);
-                    resetOnboarding();
+                    localStorage.removeItem("clawos-onboarded");
                     window.location.reload();
                   }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-destructive/70 hover:text-destructive hover:bg-destructive/5 transition-colors"
