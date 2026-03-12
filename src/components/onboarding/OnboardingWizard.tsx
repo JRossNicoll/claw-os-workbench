@@ -125,7 +125,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
           <motion.div key={currentStep} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.3 }}>
             {currentStep === 0 && <StepPurpose selected={selectedPurpose} onSelect={setSelectedPurpose} />}
             {currentStep === 1 && <StepEngines selected={selectedEngines} onToggle={(id) => setSelectedEngines((prev) => prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id])} />}
-            {currentStep === 2 && <StepIntegrations connected={connectedIntegrations} onToggle={(id) => setConnectedIntegrations((prev) => prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id])} />}
+            {currentStep === 2 && <StepIntegrations selected={connectedIntegrations} onToggle={(id) => setConnectedIntegrations((prev) => prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id])} />}
             {currentStep === 3 && <StepFirstAutomation config={automationConfig} onUpdate={setAutomationConfig} />}
           </motion.div>
         </AnimatePresence>
