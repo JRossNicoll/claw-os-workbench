@@ -5,6 +5,7 @@ import { StepEngines } from "./StepEngines";
 import { StepIntegrations } from "./StepIntegrations";
 import { StepFirstAutomation } from "./StepFirstAutomation";
 import { Hexagon } from "lucide-react";
+import { completeOnboarding } from "@/lib/store";
 
 interface OnboardingWizardProps {
   onComplete: () => void;
@@ -16,10 +17,24 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedPurpose, setSelectedPurpose] = useState<string | null>(null);
   const [selectedEngines, setSelectedEngines] = useState<string[]>([]);
+  const [connectedIntegrations, setConnectedIntegrations] = useState<string[]>([]);
+  const [automationConfig, setAutomationConfig] = useState<{ when: string | null; run: string | null; then: string | null }>({ when: null, run: null, then: null });
 
   const next = () => {
-    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
-    else onComplete();
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Complete onboarding with all selections
+      completeOnboarding({
+        purpose: selectedPurpose || "automate",
+        engines: selectedEngines,
+        integrations: connectedIntegrations,
+        automation: automationConfig.when && automationConfig.run && automationConfig.then
+          ? { when: automationConfig.when, run: automationConfig.run, then: automationConfig.then }
+          : undefined,
+      });
+      onComplete();
+    }
   };
 
   const back = () => {
@@ -43,8 +58,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         <motion.div key={currentStep} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -14 }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }} className="w-full">
           {currentStep === 0 && <StepPurpose selected={selectedPurpose} onSelect={setSelectedPurpose} />}
           {currentStep === 1 && <StepEngines selected={selectedEngines} onToggle={(id) => setSelectedEngines((prev) => prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id])} />}
-          {currentStep === 2 && <StepIntegrations />}
-          {currentStep === 3 && <StepFirstAutomation />}
+          {currentStep === 2 && <StepIntegrations selected={connectedIntegrations} onToggle={(id) => setConnectedIntegrations((prev) => prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id])} />}
+          {currentStep === 3 && <StepFirstAutomation config={automationConfig} onUpdate={setAutomationConfig} />}
         </motion.div>
       </AnimatePresence>
 

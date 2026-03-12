@@ -1,18 +1,20 @@
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
-import { Home, Layers, Cog, Activity, Lock, Settings, ChevronDown, Link2, Server } from "lucide-react";
+import { Home, Layers, Cog, Activity, Lock, Settings, ChevronDown, Link2, Server, Bot, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 
 const navItems = [
   { title: "Home", icon: Home, path: "/" },
   { title: "Automations", icon: Layers, path: "/automations" },
+  { title: "Agents", icon: Bot, path: "/agents" },
+  { title: "Runs", icon: PlayCircle, path: "/runs" },
   { title: "Engines", icon: Cog, path: "/engines" },
   { title: "Integrations", icon: Link2, path: "/integrations" },
   { title: "Activity", icon: Activity, path: "/activity" },
   { title: "Secrets", icon: Lock, path: "/secrets" },
-  { title: "Settings", icon: Settings, path: "/settings" },
   { title: "System", icon: Server, path: "/system" },
+  { title: "Settings", icon: Settings, path: "/settings" },
 ];
 
 export function WorkspaceNav() {
