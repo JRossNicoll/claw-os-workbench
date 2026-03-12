@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeTable } from "./use-realtime";
 
 export interface ActivityEvent {
   id: string;
@@ -11,6 +12,7 @@ export interface ActivityEvent {
 }
 
 export function useActivity() {
+  useRealtimeTable("activity_events", [["activity"]]);
   return useQuery({
     queryKey: ["activity"],
     queryFn: async (): Promise<ActivityEvent[]> => {

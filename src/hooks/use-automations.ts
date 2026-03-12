@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeTable } from "./use-realtime";
 import type { Automation, AutomationStep } from "@/lib/store";
 
 interface DbAutomation {
@@ -59,6 +60,7 @@ async function fetchAutomations(): Promise<Automation[]> {
 }
 
 export function useAutomations() {
+  useRealtimeTable("automations", [["automations"]]);
   return useQuery({ queryKey: ["automations"], queryFn: fetchAutomations });
 }
 

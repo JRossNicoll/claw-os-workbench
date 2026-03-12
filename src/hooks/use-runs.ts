@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeTable } from "./use-realtime";
 
 export interface RunRow {
   id: string;
@@ -17,6 +18,7 @@ export interface RunRow {
 }
 
 export function useRuns(automationId?: string) {
+  useRealtimeTable("runs", [["runs", automationId ?? ""]]);
   return useQuery({
     queryKey: ["runs", automationId],
     queryFn: async (): Promise<RunRow[]> => {

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeTable } from "./use-realtime";
 import type { Agent } from "@/lib/store";
 
 async function fetchAgents(): Promise<Agent[]> {
@@ -24,6 +25,7 @@ async function fetchAgents(): Promise<Agent[]> {
 }
 
 export function useAgents() {
+  useRealtimeTable("agents", [["agents"]]);
   return useQuery({ queryKey: ["agents"], queryFn: fetchAgents });
 }
 
