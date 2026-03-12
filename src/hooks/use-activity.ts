@@ -12,6 +12,7 @@ export interface ActivityEvent {
 }
 
 export function useActivity() {
+  useRealtimeTable("activity_events", [["activity"]]);
   return useQuery({
     queryKey: ["activity"],
     queryFn: async (): Promise<ActivityEvent[]> => {

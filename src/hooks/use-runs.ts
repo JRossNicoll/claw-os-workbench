@@ -18,6 +18,7 @@ export interface RunRow {
 }
 
 export function useRuns(automationId?: string) {
+  useRealtimeTable("runs", [["runs", automationId ?? ""]]);
   return useQuery({
     queryKey: ["runs", automationId],
     queryFn: async (): Promise<RunRow[]> => {
