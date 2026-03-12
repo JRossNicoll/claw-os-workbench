@@ -54,6 +54,12 @@ export function CommandBar() {
         <WorkspaceNav />
       </div>
 
+      {/* Tokenized banner */}
+      <div className="hidden lg:flex items-center text-[11px] text-muted-foreground whitespace-nowrap">
+        ClawOS is tokenized! Support the Project{" "}
+        <a href="https://pump.fun" target="_blank" rel="noopener noreferrer" className="text-destructive font-semibold hover:text-destructive/80 transition-colors ml-1">HERE</a>
+      </div>
+
       {/* Search — responsive */}
       <motion.button
         onClick={openSearch}
