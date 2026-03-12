@@ -11,7 +11,7 @@ export function Layout({ children }: LayoutProps) {
     <div className="min-h-screen flex flex-col bg-background">
       <CommandBar />
       <CommandPalette />
-      <main className="flex-1 overflow-auto px-8 sm:px-12 py-10">
+      <main className="flex-1 overflow-auto px-4 sm:px-8 md:px-12 py-6 sm:py-10">
         {children}
       </main>
       <footer className="py-6 text-center text-sm text-muted-foreground leading-relaxed">
