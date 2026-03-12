@@ -90,11 +90,11 @@ function CredentialForm({ integrationId, onConnect, onCancel, connecting }: {
   onCancel: () => void;
   connecting: boolean;
 }) {
-  const config = credentialConfig[integrationId];
-  if (!config) return null;
-
   const [values, setValues] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
+
+  const config = credentialConfig[integrationId];
+  if (!config) return null;
 
   const handleSubmit = () => {
     // Validate at least the first (required) field
