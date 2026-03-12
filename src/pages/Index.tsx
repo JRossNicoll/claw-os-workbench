@@ -4,7 +4,9 @@ import { motion } from "framer-motion";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { isOnboarded, getAutomations, getAgents, getEvents, getMetrics } from "@/lib/store";
+import { isOnboarded, getEvents } from "@/lib/store";
+import { useAgents } from "@/hooks/use-agents";
+import { useAutomations } from "@/hooks/use-automations";
 
 const eventIcons: Record<string, typeof CheckCircle> = {
   installed: Download,
@@ -36,12 +38,17 @@ const Home = () => {
     return <OnboardingWizard onComplete={handleComplete} />;
   }
 
-  const automations = getAutomations();
-  const agents = getAgents();
+  const { data: automations = [] } = useAutomations();
+  const { data: agents = [] } = useAgents();
   const events = getEvents();
-  const metrics = getMetrics();
   const activeAutomations = automations.filter((a) => a.status === "active");
   const activeAgents = agents.filter((a) => a.status === "active");
+  const metrics = {
+    active_workflows: activeAutomations.length,
+    running_jobs: 0,
+    active_agents: activeAgents.length,
+    runtime_containers: 6,
+  };
 
   return (
     <div className="max-w-3xl mx-auto space-y-10">

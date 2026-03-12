@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Bot, Play, Square, MoreHorizontal, ArrowLeft, Zap, Clock, CheckCircle, AlertTriangle, Cpu, BarChart3 } from "lucide-react";
+import { Bot, Play, Square, ArrowLeft, Zap, Clock, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { getAgents, toggleAgent, type Agent } from "@/lib/store";
+import { useAgents, useToggleAgent } from "@/hooks/use-agents";
 import { toast } from "sonner";
 
 const typeColors: Record<string, string> = {
@@ -19,17 +19,28 @@ const statusConfig: Record<string, { color: string; label: string }> = {
 };
 
 const Agents = () => {
-  const [agents, setAgents] = useState(getAgents);
+  const { data: agents = [], isLoading } = useAgents();
+  const toggleMutation = useToggleAgent();
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const selected = agents.find((a) => a.id === selectedId);
 
   const handleToggle = (agentId: string) => {
-    const updated = toggleAgent(agentId);
-    setAgents(updated);
-    const agent = updated.find((a) => a.id === agentId);
-    toast.success(`${agent?.name} ${agent?.status === "active" ? "started" : "stopped"}`);
+    toggleMutation.mutate(agentId, {
+      onSuccess: (newStatus) => {
+        const agent = agents.find((a) => a.id === agentId);
+        toast.success(`${agent?.name} ${newStatus === "active" ? "started" : "stopped"}`);
+      },
+    });
   };
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto flex items-center justify-center py-20">
+        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (selected) {
     const sc = statusConfig[selected.status] || statusConfig.stopped;
@@ -57,8 +68,9 @@ const Agents = () => {
             </div>
             <button
               onClick={() => handleToggle(selected.id)}
+              disabled={toggleMutation.isPending}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all",
+                "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all disabled:opacity-50",
                 selected.status === "active"
                   ? "text-destructive border border-destructive/20 hover:bg-destructive/10"
                   : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -70,7 +82,6 @@ const Agents = () => {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           {[
             { label: "Total Runs", value: selected.totalRuns, icon: Zap },
@@ -85,7 +96,6 @@ const Agents = () => {
           ))}
         </div>
 
-        {/* Activity Log */}
         <div>
           <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Recent Activity</h3>
           <div className="bg-terminal-bg rounded-lg border border-border p-4 font-mono text-[11px] leading-relaxed space-y-0.5 max-h-48 overflow-y-auto terminal-scrollbar">
@@ -103,12 +113,7 @@ const Agents = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="flex items-center justify-between"
-      >
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-foreground">Agents</h1>
           <p className="text-sm text-muted-foreground mt-1">Autonomous AI workers running on your stack</p>
@@ -121,21 +126,11 @@ const Agents = () => {
         </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
-        className="space-y-2"
-      >
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="space-y-2">
         {agents.map((agent, i) => {
           const sc = statusConfig[agent.status] || statusConfig.stopped;
           return (
-            <motion.div
-              key={agent.id}
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.06 + i * 0.03 }}
-            >
+            <motion.div key={agent.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.06 + i * 0.03 }}>
               <button
                 onClick={() => setSelectedId(agent.id)}
                 className="w-full flex items-center gap-4 p-4 rounded-xl surface-elevated hover:border-primary/15 transition-all duration-200 text-left group"

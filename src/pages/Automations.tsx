@@ -8,7 +8,8 @@ import {
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { getAutomations, runAutomation, getRuns, type Automation } from "@/lib/store";
+import { useAutomations } from "@/hooks/use-automations";
+import { getRuns, runAutomation } from "@/lib/store";
 import { toast } from "sonner";
 
 const stepIcons: Record<string, typeof CheckCircle> = {
@@ -17,7 +18,6 @@ const stepIcons: Record<string, typeof CheckCircle> = {
   failed: XCircle,
   pending: Clock,
   skipped: SkipForward,
-  retrying: RotateCcw,
 };
 
 const stepColors: Record<string, string> = {
@@ -26,7 +26,6 @@ const stepColors: Record<string, string> = {
   failed: "text-destructive",
   pending: "text-muted-foreground/40",
   skipped: "text-muted-foreground/50",
-  retrying: "text-warning",
 };
 
 const levelColors: Record<string, string> = {
@@ -37,10 +36,9 @@ const levelColors: Record<string, string> = {
 };
 
 const Automations = () => {
-  const [automations, setAutomations] = useState(getAutomations);
+  const { data: automations = [], isLoading } = useAutomations();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<"steps" | "history" | "logs">("steps");
-  const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({});
   const [running, setRunning] = useState(false);
   const navigate = useNavigate();
 
@@ -50,15 +48,18 @@ const Automations = () => {
     setRunning(true);
     runAutomation(id);
     toast.success("Automation started");
-    setTimeout(() => {
-      setRunning(false);
-      setAutomations(getAutomations());
-    }, 2500);
+    setTimeout(() => setRunning(false), 2500);
   };
 
-  const toggleStep = (id: string) => setExpandedSteps((prev) => ({ ...prev, [id]: !prev[id] }));
-
   const runs = getRuns().filter((r) => r.automationId === selectedId);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto flex items-center justify-center py-20">
+        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (selected) {
     const steps = selected.steps || [];
