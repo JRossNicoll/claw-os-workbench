@@ -60,6 +60,7 @@ async function fetchAutomations(): Promise<Automation[]> {
 }
 
 export function useAutomations() {
+  useRealtimeTable("automations", [["automations"]]);
   return useQuery({ queryKey: ["automations"], queryFn: fetchAutomations });
 }
 

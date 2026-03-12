@@ -25,6 +25,7 @@ async function fetchAgents(): Promise<Agent[]> {
 }
 
 export function useAgents() {
+  useRealtimeTable("agents", [["agents"]]);
   return useQuery({ queryKey: ["agents"], queryFn: fetchAgents });
 }
 
