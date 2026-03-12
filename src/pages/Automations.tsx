@@ -93,11 +93,11 @@ const Automations = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleRun(selected.id)}
-                disabled={running}
+                disabled={runMutation.isPending}
                 className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {running ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-                {running ? "Running..." : "Run now"}
+                {runMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                {runMutation.isPending ? "Running..." : "Run now"}
               </button>
             </div>
           </div>
