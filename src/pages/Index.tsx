@@ -54,7 +54,7 @@ const Home = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-10">
+    <div className="max-w-3xl mx-auto space-y-6 sm:space-y-10">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}>
         <div className="flex items-center justify-between">
           <div>
@@ -83,7 +83,7 @@ const Home = () => {
       </motion.div>
 
       {/* Quick Actions */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.04 }} className="grid grid-cols-4 gap-2.5">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.04 }} className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {[
           { label: "New Automation", icon: Plus, path: "/automations" },
           { label: "Install Engine", icon: Cog, path: "/engines" },
