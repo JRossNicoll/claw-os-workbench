@@ -69,12 +69,11 @@ const Home = () => {
       </motion.div>
 
       {/* Metrics Strip */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.02 }} className="grid grid-cols-4 gap-2.5">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.02 }} className="grid grid-cols-3 gap-2.5">
         {[
           { label: "Active Workflows", value: metrics.active_workflows, color: "text-success" },
           { label: "Running Jobs", value: metrics.running_jobs, color: "text-info" },
           { label: "Active Agents", value: metrics.active_agents, color: "text-primary" },
-          { label: "Containers", value: metrics.runtime_containers, color: "text-warning" },
         ].map((m) => (
           <div key={m.label} className="p-3.5 rounded-lg surface-elevated text-center">
             <div className={cn("text-lg font-semibold font-mono", m.color)}>{m.value}</div>
