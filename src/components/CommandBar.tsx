@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, Bell, User, Hexagon, Settings, LogOut, RefreshCw, X } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { WorkspaceNav } from "./WorkspaceNav";
 import { useActivity, timeAgo } from "@/hooks/use-activity";
@@ -46,7 +47,7 @@ export function CommandBar() {
           whileHover={{ scale: 1.03 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-          <Hexagon className="w-4 h-4 text-primary" strokeWidth={2.5} />
+          <img src={logoImg} alt="ClawOS" className="w-5 h-5 object-contain" />
           <span className="font-semibold text-foreground tracking-tight text-sm hidden sm:inline">ClawOS</span>
         </motion.div>
         <div className="w-px h-4 bg-border hidden sm:block" />
