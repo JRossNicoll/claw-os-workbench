@@ -9,7 +9,8 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAutomations } from "@/hooks/use-automations";
-import { getRuns, runAutomation } from "@/lib/store";
+import { useRuns, useRunAutomation } from "@/hooks/use-runs";
+import { timeAgo } from "@/hooks/use-activity";
 import { toast } from "sonner";
 
 const stepIcons: Record<string, typeof CheckCircle> = {
@@ -37,21 +38,22 @@ const levelColors: Record<string, string> = {
 
 const Automations = () => {
   const { data: automations = [], isLoading } = useAutomations();
+  const runMutation = useRunAutomation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<"steps" | "history" | "logs">("steps");
-  const [running, setRunning] = useState(false);
   const navigate = useNavigate();
 
   const selected = automations.find((a) => a.id === selectedId);
+  const { data: runs = [] } = useRuns(selectedId || undefined);
 
   const handleRun = (id: string) => {
-    setRunning(true);
-    runAutomation(id);
-    toast.success("Automation started");
-    setTimeout(() => setRunning(false), 2500);
+    const auto = automations.find((a) => a.id === id);
+    if (!auto) return;
+    runMutation.mutate(
+      { id: auto.id, name: auto.name, stepsCount: auto.steps.length },
+      { onSuccess: () => toast.success("Automation started") }
+    );
   };
-
-  const runs = getRuns().filter((r) => r.automationId === selectedId);
 
   if (isLoading) {
     return (
@@ -91,11 +93,11 @@ const Automations = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleRun(selected.id)}
-                disabled={running}
+                disabled={runMutation.isPending}
                 className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {running ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
-                {running ? "Running..." : "Run now"}
+                {runMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                {runMutation.isPending ? "Running..." : "Run now"}
               </button>
             </div>
           </div>
@@ -152,13 +154,13 @@ const Automations = () => {
           {detailTab === "history" && (
             <motion.div key="history" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}>
               {runs.length > 0 ? (
-                <div className="space-y-2">
+               <div className="space-y-2">
                   {runs.map((run) => (
                     <div key={run.id} className="flex items-center gap-4 p-4 rounded-xl surface-elevated cursor-pointer hover:border-primary/15 transition-all" onClick={() => navigate("/runs")}>
                       <div className={cn("w-2 h-2 rounded-full", run.status === "success" ? "bg-success" : run.status === "failed" ? "bg-destructive" : "bg-info")} />
                       <span className="text-sm text-foreground flex-1 capitalize">{run.status}</span>
-                      <span className="text-xs text-muted-foreground">{run.duration}</span>
-                      <span className="text-[10px] text-muted-foreground/40">{run.startedAt}</span>
+                      <span className="text-xs text-muted-foreground">{run.duration || "—"}</span>
+                      <span className="text-[10px] text-muted-foreground/40">{timeAgo(run.started_at)}</span>
                     </div>
                   ))}
                 </div>

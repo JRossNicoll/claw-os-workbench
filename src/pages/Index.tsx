@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { isOnboarded, getEvents } from "@/lib/store";
+import { isOnboarded } from "@/lib/store";
 import { useAgents } from "@/hooks/use-agents";
 import { useAutomations } from "@/hooks/use-automations";
+import { useRuns } from "@/hooks/use-runs";
+import { useActivity, timeAgo } from "@/hooks/use-activity";
 
 const eventIcons: Record<string, typeof CheckCircle> = {
   installed: Download,
@@ -30,6 +32,8 @@ const Home = () => {
   const [, setTick] = useState(0);
   const { data: automations = [] } = useAutomations();
   const { data: agents = [] } = useAgents();
+  const { data: runs = [] } = useRuns();
+  const { data: events = [] } = useActivity();
 
   const handleComplete = () => {
     setOnboarded(true);
@@ -40,14 +44,13 @@ const Home = () => {
     return <OnboardingWizard onComplete={handleComplete} />;
   }
 
-  const events = getEvents();
   const activeAutomations = automations.filter((a) => a.status === "active");
   const activeAgents = agents.filter((a) => a.status === "active");
+  const runningJobs = runs.filter((r) => r.status === "running").length;
   const metrics = {
     active_workflows: activeAutomations.length,
-    running_jobs: 0,
+    running_jobs: runningJobs,
     active_agents: activeAgents.length,
-    runtime_containers: 6,
   };
 
   return (
@@ -66,12 +69,11 @@ const Home = () => {
       </motion.div>
 
       {/* Metrics Strip */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.02 }} className="grid grid-cols-4 gap-2.5">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.02 }} className="grid grid-cols-3 gap-2.5">
         {[
           { label: "Active Workflows", value: metrics.active_workflows, color: "text-success" },
           { label: "Running Jobs", value: metrics.running_jobs, color: "text-info" },
           { label: "Active Agents", value: metrics.active_agents, color: "text-primary" },
-          { label: "Containers", value: metrics.runtime_containers, color: "text-warning" },
         ].map((m) => (
           <div key={m.label} className="p-3.5 rounded-lg surface-elevated text-center">
             <div className={cn("text-lg font-semibold font-mono", m.color)}>{m.value}</div>
@@ -165,7 +167,7 @@ const Home = () => {
               <div key={event.id} className="flex items-center gap-3 p-3 rounded-lg surface-elevated">
                 <Icon className={cn("w-3 h-3 flex-shrink-0", color)} />
                 <span className="text-xs text-foreground flex-1">{event.message}</span>
-                <span className="text-[10px] text-muted-foreground/40">{event.timestamp}</span>
+                <span className="text-[10px] text-muted-foreground/40">{timeAgo(event.created_at)}</span>
               </div>
             );
           })}

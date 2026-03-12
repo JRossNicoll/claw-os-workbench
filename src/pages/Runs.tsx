@@ -5,7 +5,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { getRuns, type Run } from "@/lib/store";
+import { useRuns, type RunRow } from "@/hooks/use-runs";
+import { timeAgo } from "@/hooks/use-activity";
 
 const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; bg: string }> = {
   success: { icon: CheckCircle, color: "text-success", bg: "bg-success/10" },
@@ -23,13 +24,20 @@ const levelColors: Record<string, string> = {
 };
 
 const Runs = () => {
-  const [runs] = useState(getRuns);
+  const { data: runs = [], isLoading } = useRuns();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("all");
 
   const selected = runs.find((r) => r.id === selectedId);
-
   const filtered = filter === "all" ? runs : runs.filter((r) => r.status === filter);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto flex items-center justify-center py-20">
+        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (selected) {
     const sc = statusConfig[selected.status] || statusConfig.queued;
@@ -43,40 +51,36 @@ const Runs = () => {
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-lg font-semibold text-foreground">{selected.automationName}</h1>
+                <h1 className="text-lg font-semibold text-foreground">{selected.automation_name}</h1>
                 <div className={cn("flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-medium", sc.bg, sc.color)}>
                   <Icon className={cn("w-3 h-3", selected.status === "running" && "animate-spin")} />
                   {selected.status}
                 </div>
               </div>
               <div className="flex items-center gap-3 mt-2 text-[11px] text-muted-foreground">
-                <span>Run {selected.id}</span>
-                <span className="text-border">·</span>
                 <span>Trigger: {selected.trigger}</span>
                 <span className="text-border">·</span>
-                <span>Started {selected.startedAt}</span>
+                <span>Started {timeAgo(selected.started_at)}</span>
                 <span className="text-border">·</span>
-                <span>Duration: {selected.duration}</span>
+                <span>Duration: {selected.duration || "—"}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Progress */}
         <div className="surface-elevated rounded-lg p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Progress</span>
-            <span className="text-xs font-mono text-foreground">{selected.stepsCompleted}/{selected.steps} steps</span>
+            <span className="text-xs font-mono text-foreground">{selected.steps_completed}/{selected.steps} steps</span>
           </div>
           <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
             <div
               className={cn("h-full rounded-full transition-all duration-500", selected.status === "failed" ? "bg-destructive" : selected.status === "running" ? "bg-info" : "bg-success")}
-              style={{ width: `${selected.steps > 0 ? (selected.stepsCompleted / selected.steps) * 100 : 0}%` }}
+              style={{ width: `${selected.steps > 0 ? (selected.steps_completed / selected.steps) * 100 : 0}%` }}
             />
           </div>
         </div>
 
-        {/* Logs */}
         <div>
           <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">Execution Log</h3>
           <div className="bg-terminal-bg rounded-lg border border-border p-4 font-mono text-[11px] leading-relaxed space-y-0.5 max-h-72 overflow-y-auto terminal-scrollbar">
@@ -99,12 +103,7 @@ const Runs = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="flex items-center justify-between"
-      >
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-foreground">Runs</h1>
           <p className="text-sm text-muted-foreground mt-1">Execution history across all automations</p>
@@ -117,13 +116,7 @@ const Runs = () => {
         </div>
       </motion.div>
 
-      {/* Filters */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.03 }}
-        className="flex gap-1.5"
-      >
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.03 }} className="flex gap-1.5">
         {["all", "running", "success", "failed", "queued"].map((f) => (
           <button
             key={f}
@@ -138,12 +131,7 @@ const Runs = () => {
         ))}
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.06 }}
-        className="space-y-1.5"
-      >
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.06 }} className="space-y-1.5">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 rounded-2xl surface-elevated">
             <Layers className="w-8 h-8 text-muted-foreground/20 mb-3" />
@@ -154,12 +142,7 @@ const Runs = () => {
             const sc = statusConfig[run.status] || statusConfig.queued;
             const Icon = sc.icon;
             return (
-              <motion.div
-                key={run.id}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.06 + i * 0.02 }}
-              >
+              <motion.div key={run.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.06 + i * 0.02 }}>
                 <button
                   onClick={() => setSelectedId(run.id)}
                   className="w-full flex items-center gap-4 p-4 rounded-xl surface-elevated hover:border-primary/15 transition-all duration-200 text-left group"
@@ -169,20 +152,20 @@ const Runs = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-[13px] font-medium text-foreground">{run.automationName}</span>
-                      {run.agentName && (
-                        <span className="text-[10px] text-primary bg-primary/8 px-1.5 py-0.5 rounded">{run.agentName}</span>
+                      <span className="text-[13px] font-medium text-foreground">{run.automation_name}</span>
+                      {run.agent_name && (
+                        <span className="text-[10px] text-primary bg-primary/8 px-1.5 py-0.5 rounded">{run.agent_name}</span>
                       )}
                     </div>
                     <div className="text-[11px] text-muted-foreground flex items-center gap-2">
                       <span>{run.trigger}</span>
                       <span className="text-border">·</span>
-                      <span>{run.stepsCompleted}/{run.steps} steps</span>
+                      <span>{run.steps_completed}/{run.steps} steps</span>
                       <span className="text-border">·</span>
-                      <span>{run.startedAt}</span>
+                      <span>{timeAgo(run.started_at)}</span>
                     </div>
                   </div>
-                  <span className="text-xs font-mono text-muted-foreground">{run.duration}</span>
+                  <span className="text-xs font-mono text-muted-foreground">{run.duration || "—"}</span>
                   <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/20 group-hover:text-muted-foreground/50 transition-colors" />
                 </button>
               </motion.div>
