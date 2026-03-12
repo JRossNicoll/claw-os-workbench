@@ -52,13 +52,12 @@ export function CommandBar() {
         </motion.div>
         <div className="w-px h-4 bg-border hidden sm:block" />
         <WorkspaceNav />
-      </div>
-
-      {/* Tokenized banner */}
-      <div className="hidden lg:flex items-center gap-1.5 text-xs text-foreground/70 font-medium whitespace-nowrap px-3 py-1 rounded-md border border-border bg-card">
-        <span>🪙</span>
-        <span>ClawOS is tokenized! Support the Project</span>
-        <a href="https://pump.fun" target="_blank" rel="noopener noreferrer" className="text-destructive font-bold hover:text-destructive/80 transition-colors">HERE</a>
+        <div className="w-px h-4 bg-border hidden lg:block" />
+        <div className="hidden lg:flex items-center gap-1.5 text-xs text-foreground/70 font-medium whitespace-nowrap px-3 py-1 rounded-md border border-border bg-card">
+          <span>🪙</span>
+          <span>ClawOS is tokenized! Support the Project</span>
+          <a href="https://pump.fun" target="_blank" rel="noopener noreferrer" className="text-destructive font-bold hover:text-destructive/80 transition-colors">HERE</a>
+        </div>
       </div>
 
       {/* Search — responsive */}
