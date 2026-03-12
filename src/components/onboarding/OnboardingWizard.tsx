@@ -91,6 +91,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       qc.invalidateQueries({ queryKey: ["engines"] });
       qc.invalidateQueries({ queryKey: ["automations"] });
       qc.invalidateQueries({ queryKey: ["activity"] });
+      qc.invalidateQueries({ queryKey: ["integrations"] });
 
       localStorage.setItem("clawos-onboarded", "true");
       onComplete();

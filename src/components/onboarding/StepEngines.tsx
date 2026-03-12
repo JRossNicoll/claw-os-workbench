@@ -1,12 +1,13 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { getEngines } from "@/lib/store";
-
-const topEngines = getEngines().slice(0, 8);
+import { useEngines } from "@/hooks/use-engines";
 
 interface StepEnginesProps { selected: string[]; onToggle: (id: string) => void; }
 
 export function StepEngines({ selected, onToggle }: StepEnginesProps) {
+  const { data: engines = [] } = useEngines();
+  const topEngines = engines.slice(0, 8);
+
   return (
     <div>
       <h2 className="text-base font-semibold text-foreground tracking-tight text-center">Install engines</h2>
