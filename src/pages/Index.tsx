@@ -32,6 +32,8 @@ const Home = () => {
   const [, setTick] = useState(0);
   const { data: automations = [] } = useAutomations();
   const { data: agents = [] } = useAgents();
+  const { data: runs = [] } = useRuns();
+  const { data: events = [] } = useActivity();
 
   const handleComplete = () => {
     setOnboarded(true);
@@ -42,14 +44,13 @@ const Home = () => {
     return <OnboardingWizard onComplete={handleComplete} />;
   }
 
-  const events = getEvents();
   const activeAutomations = automations.filter((a) => a.status === "active");
   const activeAgents = agents.filter((a) => a.status === "active");
+  const runningJobs = runs.filter((r) => r.status === "running").length;
   const metrics = {
     active_workflows: activeAutomations.length,
-    running_jobs: 0,
+    running_jobs: runningJobs,
     active_agents: activeAgents.length,
-    runtime_containers: 6,
   };
 
   return (
