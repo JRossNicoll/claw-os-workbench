@@ -9,7 +9,8 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAutomations } from "@/hooks/use-automations";
-import { getRuns, runAutomation } from "@/lib/store";
+import { useRuns, useRunAutomation } from "@/hooks/use-runs";
+import { timeAgo } from "@/hooks/use-activity";
 import { toast } from "sonner";
 
 const stepIcons: Record<string, typeof CheckCircle> = {
