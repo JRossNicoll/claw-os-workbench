@@ -55,9 +55,10 @@ export function CommandBar() {
       </div>
 
       {/* Tokenized banner */}
-      <div className="hidden lg:flex items-center text-[11px] text-muted-foreground whitespace-nowrap">
-        ClawOS is tokenized! Support the Project{" "}
-        <a href="https://pump.fun" target="_blank" rel="noopener noreferrer" className="text-destructive font-semibold hover:text-destructive/80 transition-colors ml-1">HERE</a>
+      <div className="hidden lg:flex items-center gap-1.5 text-xs text-foreground/70 font-medium whitespace-nowrap px-3 py-1 rounded-md border border-border bg-card">
+        <span>🪙</span>
+        <span>ClawOS is tokenized! Support the Project</span>
+        <a href="https://pump.fun" target="_blank" rel="noopener noreferrer" className="text-destructive font-bold hover:text-destructive/80 transition-colors">HERE</a>
       </div>
 
       {/* Search — responsive */}
