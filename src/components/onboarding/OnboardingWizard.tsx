@@ -4,7 +4,7 @@ import { StepPurpose } from "./StepPurpose";
 import { StepEngines } from "./StepEngines";
 import { StepIntegrations } from "./StepIntegrations";
 import { StepFirstAutomation } from "./StepFirstAutomation";
-import { Hexagon } from "lucide-react";
+import logoImg from "@/assets/logo.webp";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -107,9 +107,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} className="w-full">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-            <Hexagon className="w-4 h-4 text-primary" />
-          </div>
+          <img src={logoImg} alt="ClawOS" className="w-8 h-8 object-contain" />
           <span className="text-sm font-semibold text-foreground tracking-tight">ClawOS</span>
         </div>
 
