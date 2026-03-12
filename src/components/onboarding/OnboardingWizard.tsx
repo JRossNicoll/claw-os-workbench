@@ -6,7 +6,6 @@ import { StepIntegrations } from "./StepIntegrations";
 import { StepFirstAutomation } from "./StepFirstAutomation";
 import { Hexagon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toggleIntegration } from "@/lib/store";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface OnboardingWizardProps {
