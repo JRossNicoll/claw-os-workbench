@@ -2,42 +2,47 @@ import { useState } from "react";
 import { Plus, Trash2, Lock, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-
-const secretsData: { name: string; createdAt: string; lastUsed: string; usedBy: number }[] = [];
+import { getSecrets, addSecret, deleteSecret, type Secret } from "@/lib/store";
+import { toast } from "sonner";
 
 const Secrets = () => {
+  const [secrets, setSecrets] = useState(getSecrets);
   const [showAdd, setShowAdd] = useState(false);
+  const [name, setName] = useState("");
+
+  const handleAdd = () => {
+    if (!name.trim()) return;
+    const updated = addSecret(name.trim().toUpperCase());
+    setSecrets(updated);
+    setName("");
+    setShowAdd(false);
+    toast.success("Secret added");
+  };
+
+  const handleDelete = (id: string) => {
+    const updated = deleteSecret(id);
+    setSecrets(updated);
+    toast.success("Secret deleted");
+  };
 
   return (
     <div className="max-w-3xl mx-auto space-y-8">
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="flex items-center justify-between"
-      >
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-semibold text-foreground">Secrets</h1>
           <p className="text-sm text-muted-foreground mt-1">API keys and credentials</p>
         </div>
-        <button
-          onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-        >
+        <button onClick={() => setShowAdd(!showAdd)} className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
           <Plus className="w-4 h-4" /> Add Secret
         </button>
       </motion.div>
 
       {showAdd && (
-        <motion.div
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-5 rounded-xl surface-elevated space-y-4"
-        >
+        <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="p-5 rounded-xl surface-elevated space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs text-muted-foreground font-medium">Name</label>
-              <input placeholder="MY_API_KEY" className="w-full bg-muted/60 border border-border rounded-lg px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-primary/30 font-mono transition-all" />
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="MY_API_KEY" className="w-full bg-muted/60 border border-border rounded-lg px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-primary/30 font-mono transition-all" />
             </div>
             <div className="space-y-1.5">
               <label className="text-xs text-muted-foreground font-medium">Value</label>
@@ -45,48 +50,27 @@ const Secrets = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
-              Save
-            </button>
-            <button onClick={() => setShowAdd(false)} className="px-3.5 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-              Cancel
-            </button>
+            <button onClick={handleAdd} className="px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">Save</button>
+            <button onClick={() => setShowAdd(false)} className="px-3.5 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Cancel</button>
           </div>
         </motion.div>
       )}
 
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.05 }}
-      >
-        {secretsData.length > 0 ? (
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
+        {secrets.length > 0 ? (
           <div className="space-y-2">
-            {secretsData.map((secret, i) => (
-              <motion.div
-                key={secret.name}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.06 + i * 0.03 }}
-                className="flex items-center gap-4 p-4 rounded-xl surface-elevated group"
-              >
+            {secrets.map((secret, i) => (
+              <motion.div key={secret.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.06 + i * 0.03 }} className="flex items-center gap-4 p-4 rounded-xl surface-elevated group">
                 <div className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                   <Lock className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-foreground font-mono">{secret.name}</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">
-                    Created {secret.createdAt} · Used by {secret.usedBy} engine{secret.usedBy > 1 ? "s" : ""} · Last used {secret.lastUsed}
-                  </div>
+                  <div className="text-[11px] text-muted-foreground mt-0.5">Created {secret.createdAt}</div>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive">
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground">
-                    <MoreHorizontal className="w-3.5 h-3.5" />
-                  </button>
-                </div>
+                <button onClick={() => handleDelete(secret.id)} className="p-2 rounded-lg hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </motion.div>
             ))}
           </div>
@@ -95,10 +79,7 @@ const Secrets = () => {
             <Lock className="w-10 h-10 text-muted-foreground/25 mb-4" />
             <p className="text-sm text-muted-foreground mb-1">No secrets stored yet</p>
             <p className="text-xs text-muted-foreground/60 mb-5">Add API keys and credentials for your engines</p>
-            <button
-              onClick={() => setShowAdd(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
+            <button onClick={() => setShowAdd(true)} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">
               <Plus className="w-4 h-4" /> Add Secret
             </button>
           </div>
