@@ -28,7 +28,7 @@ const eventColors: Record<string, string> = {
 
 const Home = () => {
   const navigate = useNavigate();
-  const [onboarded, setOnboarded] = useState(isOnboarded);
+  const [onboarded, setOnboarded] = useState(() => localStorage.getItem("clawos-onboarded") === "true");
   const [, setTick] = useState(0);
   const { data: automations = [] } = useAutomations();
   const { data: agents = [] } = useAgents();
