@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_events: {
+        Row: {
+          category: string | null
+          created_at: string
+          detail: string | null
+          id: string
+          message: string
+          type: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          message: string
+          type?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          message?: string
+          type?: string
+        }
+        Relationships: []
+      }
       agents: {
         Row: {
           created_at: string
@@ -177,6 +204,59 @@ export type Database = {
           version?: string
         }
         Relationships: []
+      }
+      runs: {
+        Row: {
+          agent_name: string | null
+          automation_id: string
+          automation_name: string
+          completed_at: string | null
+          duration: string | null
+          id: string
+          logs: Json
+          started_at: string
+          status: string
+          steps: number
+          steps_completed: number
+          trigger: string
+        }
+        Insert: {
+          agent_name?: string | null
+          automation_id: string
+          automation_name?: string
+          completed_at?: string | null
+          duration?: string | null
+          id?: string
+          logs?: Json
+          started_at?: string
+          status?: string
+          steps?: number
+          steps_completed?: number
+          trigger?: string
+        }
+        Update: {
+          agent_name?: string | null
+          automation_id?: string
+          automation_name?: string
+          completed_at?: string | null
+          duration?: string | null
+          id?: string
+          logs?: Json
+          started_at?: string
+          status?: string
+          steps?: number
+          steps_completed?: number
+          trigger?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "runs_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
