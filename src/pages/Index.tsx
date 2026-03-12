@@ -4,7 +4,9 @@ import { motion } from "framer-motion";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { isOnboarded, getAutomations, getAgents, getEvents, getMetrics } from "@/lib/store";
+import { isOnboarded, getEvents } from "@/lib/store";
+import { useAgents } from "@/hooks/use-agents";
+import { useAutomations } from "@/hooks/use-automations";
 
 const eventIcons: Record<string, typeof CheckCircle> = {
   installed: Download,
