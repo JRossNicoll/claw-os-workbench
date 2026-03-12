@@ -71,6 +71,8 @@ const Integrations = () => {
   const [integrations, setIntegrations] = useState(getIntegrations);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [openclawExpanded, setOpenclawExpanded] = useState(false);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [apiKeyValue, setApiKeyValue] = useState("");
 
   const handleGithubConnect = async () => {
     setConnecting("github");
@@ -132,15 +134,42 @@ const Integrations = () => {
     }
   }, []);
 
+  // Check if OpenClaw was previously connected
+  useEffect(() => {
+    const stored = localStorage.getItem("clawos-openclaw-api-key");
+    if (stored) {
+      const ocIntegration = integrations.find((i) => i.id === "openclaw");
+      if (ocIntegration?.status === "connected") {
+        setOpenclawExpanded(false);
+      }
+    }
+  }, []);
+
   const handleOpenClawConnect = () => {
+    setShowApiKeyInput(true);
+  };
+
+  const handleOpenClawSubmitKey = () => {
+    const key = apiKeyValue.trim();
+    if (!key) {
+      toast.error("Please enter your OpenClaw API key");
+      return;
+    }
+    if (!key.startsWith("oc_") && !key.startsWith("sk-") && key.length < 20) {
+      toast.error("Invalid API key format");
+      return;
+    }
     setConnecting("openclaw");
-    // Simulate connection handshake
+    // Simulate validating the key against OpenClaw API
     setTimeout(() => {
+      localStorage.setItem("clawos-openclaw-api-key", key);
       const updated = toggleIntegration("openclaw");
       setIntegrations(updated);
       setConnecting(null);
+      setShowApiKeyInput(false);
+      setApiKeyValue("");
       setOpenclawExpanded(true);
-      toast.success("OpenClaw instance connected");
+      toast.success("OpenClaw connected with your API key");
     }, 1500);
   };
 
@@ -162,9 +191,12 @@ const Integrations = () => {
     if (id === "openclaw") {
       const integration = integrations.find((i) => i.id === "openclaw");
       if (integration?.status === "connected") {
+        localStorage.removeItem("clawos-openclaw-api-key");
         const updated = toggleIntegration(id);
         setIntegrations(updated);
         setOpenclawExpanded(false);
+        setShowApiKeyInput(false);
+        setApiKeyValue("");
         toast.success("OpenClaw disconnected");
       } else {
         handleOpenClawConnect();
@@ -269,6 +301,47 @@ const Integrations = () => {
                   </button>
                 </div>
               </div>
+
+              {/* OpenClaw API key input */}
+              {isOpenClaw && showApiKeyInput && !openclawConnected && (
+                <div className="px-4 pb-4">
+                  <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+                    <div className="text-[11px] text-muted-foreground">
+                      Enter your OpenClaw API key from{" "}
+                      <a href="https://openclaw.ai" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                        openclaw.ai
+                      </a>
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="password"
+                        value={apiKeyValue}
+                        onChange={(e) => setApiKeyValue(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleOpenClawSubmitKey()}
+                        placeholder="oc_... or sk-..."
+                        className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-background border border-border text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary"
+                      />
+                      <button
+                        onClick={handleOpenClawSubmitKey}
+                        disabled={connecting === "openclaw"}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                      >
+                        {connecting === "openclaw" ? (
+                          <><Loader2 className="w-3 h-3 animate-spin" /> Validating...</>
+                        ) : (
+                          <><Key className="w-3 h-3" /> Connect</>
+                        )}
+                      </button>
+                      <button
+                        onClick={() => { setShowApiKeyInput(false); setApiKeyValue(""); }}
+                        className="px-2.5 py-1.5 rounded-lg text-[11px] text-muted-foreground hover:text-foreground border border-border hover:bg-card transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
 
               {/* OpenClaw expanded details */}
               {isOpenClaw && openclawConnected && openclawExpanded && (
