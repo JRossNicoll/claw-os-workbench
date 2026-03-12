@@ -48,3 +48,54 @@ export function useToggleAgent() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["agents"] }),
   });
 }
+
+export function useCreateAgent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (agent: {
+      name: string;
+      description: string;
+      type: string;
+      engine: string;
+      model?: string;
+    }) => {
+      const { data, error } = await supabase
+        .from("agents")
+        .insert({
+          name: agent.name,
+          description: agent.description,
+          type: agent.type,
+          engine: agent.engine,
+          model: agent.model || null,
+          status: "idle",
+        })
+        .select()
+        .single();
+      if (error) throw error;
+
+      // Log activity
+      await supabase.from("activity_events").insert({
+        type: "started",
+        message: `Agent "${agent.name}" created`,
+        category: "Agent",
+      });
+
+      return data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["agents"] });
+      qc.invalidateQueries({ queryKey: ["activity"] });
+    },
+  });
+}
+
+export function useDeleteAgent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (agentId: string) => {
+      const { error } = await supabase.from("agents").delete().eq("id", agentId);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["agents"] }),
+  });
+}
