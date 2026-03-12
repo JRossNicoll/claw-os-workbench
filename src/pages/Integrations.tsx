@@ -191,9 +191,12 @@ const Integrations = () => {
     if (id === "openclaw") {
       const integration = integrations.find((i) => i.id === "openclaw");
       if (integration?.status === "connected") {
+        localStorage.removeItem("clawos-openclaw-api-key");
         const updated = toggleIntegration(id);
         setIntegrations(updated);
         setOpenclawExpanded(false);
+        setShowApiKeyInput(false);
+        setApiKeyValue("");
         toast.success("OpenClaw disconnected");
       } else {
         handleOpenClawConnect();
