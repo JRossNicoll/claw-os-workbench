@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, Bell, User, Hexagon, Settings, LogOut, RefreshCw, X } from "lucide-react";
-import logoImg from "@/assets/logo.png";
+import logoImg from "@/assets/logo.webp";
 import { motion, AnimatePresence } from "framer-motion";
 import { WorkspaceNav } from "./WorkspaceNav";
 import { useActivity, timeAgo } from "@/hooks/use-activity";
