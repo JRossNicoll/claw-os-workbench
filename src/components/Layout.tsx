@@ -14,7 +14,7 @@ export function Layout({ children }: LayoutProps) {
       <main className="flex-1 overflow-auto px-4 sm:px-8 md:px-12 py-6 sm:py-10">
         {children}
       </main>
-      <footer className="py-6 text-center text-sm text-muted-foreground leading-relaxed">
+      <footer className="py-6 text-center text-sm text-muted-foreground leading-relaxed border-t border-red-subtle">
         <p>
           Built by{" "}
           <a href="https://molty.me/" target="_blank" rel="noopener noreferrer" className="text-destructive hover:text-destructive/80 font-medium transition-colors">Molty</a>
