@@ -132,7 +132,7 @@ const Automations = () => {
                           <div className={cn("absolute left-[19px] w-px z-0 top-[44px] h-[calc(100%-28px)]", step.status === "success" ? "bg-success/15" : "bg-border")} />
                         )}
                         <div className="w-full flex items-center gap-4 p-4 rounded-xl surface-elevated">
-                          <Icon className={cn("w-5 h-5 flex-shrink-0", stepColors[step.status] || "text-muted-foreground", (step.status === "running" || step.status === "retrying") && "animate-spin")} />
+                          <Icon className={cn("w-5 h-5 flex-shrink-0", stepColors[step.status] || "text-muted-foreground", step.status === "running" && "animate-spin")} />
                           <span className={cn("text-sm text-foreground flex-1", step.status === "skipped" && "line-through text-muted-foreground")}>{step.name}</span>
                           {step.duration && <span className="text-xs text-muted-foreground">{step.duration}</span>}
                           {step.condition && <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded"><GitBranch className="w-2.5 h-2.5 inline mr-1" />Conditional</span>}
