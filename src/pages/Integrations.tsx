@@ -71,6 +71,8 @@ const Integrations = () => {
   const [integrations, setIntegrations] = useState(getIntegrations);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [openclawExpanded, setOpenclawExpanded] = useState(false);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [apiKeyValue, setApiKeyValue] = useState("");
 
   const handleGithubConnect = async () => {
     setConnecting("github");
@@ -132,15 +134,42 @@ const Integrations = () => {
     }
   }, []);
 
+  // Check if OpenClaw was previously connected
+  useEffect(() => {
+    const stored = localStorage.getItem("clawos-openclaw-api-key");
+    if (stored) {
+      const ocIntegration = integrations.find((i) => i.id === "openclaw");
+      if (ocIntegration?.status === "connected") {
+        setOpenclawExpanded(false);
+      }
+    }
+  }, []);
+
   const handleOpenClawConnect = () => {
+    setShowApiKeyInput(true);
+  };
+
+  const handleOpenClawSubmitKey = () => {
+    const key = apiKeyValue.trim();
+    if (!key) {
+      toast.error("Please enter your OpenClaw API key");
+      return;
+    }
+    if (!key.startsWith("oc_") && !key.startsWith("sk-") && key.length < 20) {
+      toast.error("Invalid API key format");
+      return;
+    }
     setConnecting("openclaw");
-    // Simulate connection handshake
+    // Simulate validating the key against OpenClaw API
     setTimeout(() => {
+      localStorage.setItem("clawos-openclaw-api-key", key);
       const updated = toggleIntegration("openclaw");
       setIntegrations(updated);
       setConnecting(null);
+      setShowApiKeyInput(false);
+      setApiKeyValue("");
       setOpenclawExpanded(true);
-      toast.success("OpenClaw instance connected");
+      toast.success("OpenClaw connected with your API key");
     }, 1500);
   };
 
