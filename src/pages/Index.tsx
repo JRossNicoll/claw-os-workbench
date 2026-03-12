@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { isOnboarded } from "@/lib/store";
+
 import { useAgents } from "@/hooks/use-agents";
 import { useAutomations } from "@/hooks/use-automations";
 import { useRuns } from "@/hooks/use-runs";
