@@ -81,6 +81,19 @@ export function CommandBar() {
 
       {/* Actions */}
       <div className="flex items-center gap-0.5 flex-shrink-0">
+        {/* ClawHub */}
+        <motion.a
+          href="https://clawhub.com/skills/clawos-x-agent"
+          target="_blank"
+          rel="noopener noreferrer"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          className="p-2 rounded-lg hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
+          title="ClawHub"
+        >
+          <Hexagon className="w-3.5 h-3.5" />
+        </motion.a>
         {/* X / Twitter */}
         <motion.a
           href="https://x.com/clawos_bot"
