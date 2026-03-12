@@ -16,6 +16,7 @@ const statusStyles: Record<string, { dot: string; text: string }> = {
   inactive: { dot: "bg-muted-foreground/30", text: "text-muted-foreground" },
   skipped: { dot: "bg-muted-foreground/20", text: "text-muted-foreground" },
   retrying: { dot: "bg-warning animate-pulse-soft", text: "text-warning" },
+  error: { dot: "bg-destructive animate-pulse-soft", text: "text-destructive" },
 };
 
 export function StatusIndicator({ status, children, size = "sm" }: StatusIndicatorProps) {
