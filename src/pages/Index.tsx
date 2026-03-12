@@ -28,6 +28,8 @@ const Home = () => {
   const navigate = useNavigate();
   const [onboarded, setOnboarded] = useState(isOnboarded);
   const [, setTick] = useState(0);
+  const { data: automations = [] } = useAutomations();
+  const { data: agents = [] } = useAgents();
 
   const handleComplete = () => {
     setOnboarded(true);
@@ -38,8 +40,6 @@ const Home = () => {
     return <OnboardingWizard onComplete={handleComplete} />;
   }
 
-  const { data: automations = [] } = useAutomations();
-  const { data: agents = [] } = useAgents();
   const events = getEvents();
   const activeAutomations = automations.filter((a) => a.status === "active");
   const activeAgents = agents.filter((a) => a.status === "active");
