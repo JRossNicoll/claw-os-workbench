@@ -154,13 +154,13 @@ const Automations = () => {
           {detailTab === "history" && (
             <motion.div key="history" initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}>
               {runs.length > 0 ? (
-                <div className="space-y-2">
+               <div className="space-y-2">
                   {runs.map((run) => (
                     <div key={run.id} className="flex items-center gap-4 p-4 rounded-xl surface-elevated cursor-pointer hover:border-primary/15 transition-all" onClick={() => navigate("/runs")}>
                       <div className={cn("w-2 h-2 rounded-full", run.status === "success" ? "bg-success" : run.status === "failed" ? "bg-destructive" : "bg-info")} />
                       <span className="text-sm text-foreground flex-1 capitalize">{run.status}</span>
-                      <span className="text-xs text-muted-foreground">{run.duration}</span>
-                      <span className="text-[10px] text-muted-foreground/40">{run.startedAt}</span>
+                      <span className="text-xs text-muted-foreground">{run.duration || "—"}</span>
+                      <span className="text-[10px] text-muted-foreground/40">{timeAgo(run.started_at)}</span>
                     </div>
                   ))}
                 </div>
