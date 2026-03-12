@@ -133,6 +133,51 @@ export type Database = {
         }
         Relationships: []
       }
+      engines: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          installed: boolean
+          language: string | null
+          name: string
+          slug: string
+          stars: string | null
+          url: string | null
+          verified: boolean
+          version: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          installed?: boolean
+          language?: string | null
+          name: string
+          slug: string
+          stars?: string | null
+          url?: string | null
+          verified?: boolean
+          version?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          installed?: boolean
+          language?: string | null
+          name?: string
+          slug?: string
+          stars?: string | null
+          url?: string | null
+          verified?: boolean
+          version?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

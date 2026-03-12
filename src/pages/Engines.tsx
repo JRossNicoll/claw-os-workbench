@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { Cog, Download, Check, ArrowLeft, Shield, ChevronRight, ExternalLink } from "lucide-react";
+import { Cog, Download, Check, ArrowLeft, Shield, ChevronRight, ExternalLink, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { getEngines, installEngine as doInstall, type Engine } from "@/lib/store";
+import { useEngines, useInstallEngine } from "@/hooks/use-engines";
 import { toast } from "sonner";
 
 const categories = ["All", "AI", "Monitoring", "Notifications", "Data", "Automation", "DevOps"];
 
 const Engines = () => {
-  const [engines, setEngines] = useState(getEngines);
+  const { data: engines = [], isLoading } = useEngines();
+  const installMutation = useInstallEngine();
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -16,10 +17,13 @@ const Engines = () => {
   const selected = engines.find((e) => e.id === selectedId);
 
   const handleInstall = (engineId: string) => {
-    const updated = doInstall(engineId);
-    setEngines(updated);
-    const engine = updated.find((e) => e.id === engineId);
-    toast.success(`${engine?.name || "Engine"} installed successfully`);
+    installMutation.mutate(engineId, {
+      onSuccess: () => {
+        const engine = engines.find((e) => e.id === engineId);
+        toast.success(`${engine?.name || "Engine"} installed successfully`);
+      },
+      onError: (err) => toast.error(`Install failed: ${err.message}`),
+    });
   };
 
   const filtered = engines.filter((e) => {
@@ -28,7 +32,16 @@ const Engines = () => {
     return true;
   });
 
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto flex items-center justify-center py-20">
+        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   if (selected) {
+    const isInstalling = installMutation.isPending;
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto space-y-8">
         <div>
@@ -72,11 +85,11 @@ const Engines = () => {
               )}
               <button
                 onClick={() => handleInstall(selected.id)}
-                disabled={selected.installed}
+                disabled={selected.installed || isInstalling}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                {selected.installed ? <Check className="w-3 h-3" /> : <Download className="w-3 h-3" />}
-                {selected.installed ? "Installed" : "Install"}
+                {selected.installed ? <Check className="w-3 h-3" /> : isInstalling ? <Loader2 className="w-3 h-3 animate-spin" /> : <Download className="w-3 h-3" />}
+                {selected.installed ? "Installed" : isInstalling ? "Installing..." : "Install"}
               </button>
             </div>
           </div>
