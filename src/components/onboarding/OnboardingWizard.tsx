@@ -34,8 +34,13 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
           .in("slug", selectedEngines);
       }
 
-      // Connect selected integrations (localStorage-based for now)
-      connectedIntegrations.forEach((id) => toggleIntegration(id));
+      // Connect selected integrations in DB
+      if (connectedIntegrations.length > 0) {
+        await supabase
+          .from("integrations")
+          .update({ status: "connected", connected_at: "just now" })
+          .in("id", connectedIntegrations);
+      }
 
       // Create first automation if configured
       if (automationConfig.when && automationConfig.run && automationConfig.then) {
