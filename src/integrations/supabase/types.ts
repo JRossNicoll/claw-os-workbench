@@ -205,6 +205,36 @@ export type Database = {
         }
         Relationships: []
       }
+      integrations: {
+        Row: {
+          connected_at: string | null
+          created_at: string
+          icon: string
+          id: string
+          metadata: Json | null
+          name: string
+          status: string
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string
+          icon?: string
+          id: string
+          metadata?: Json | null
+          name: string
+          status?: string
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string
+          icon?: string
+          id?: string
+          metadata?: Json | null
+          name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       runs: {
         Row: {
           agent_name: string | null
@@ -257,6 +287,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      secrets: {
+        Row: {
+          created_at: string
+          id: string
+          last_used: string | null
+          name: string
+          used_by: number
+          value_hint: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_used?: string | null
+          name: string
+          used_by?: number
+          value_hint?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_used?: string | null
+          name?: string
+          used_by?: number
+          value_hint?: string | null
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
       }
     }
     Views: {
