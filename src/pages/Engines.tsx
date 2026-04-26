@@ -1,18 +1,28 @@
-import { useState } from "react";
-import { Cog, Download, Check, ArrowLeft, Shield, ChevronRight, ExternalLink, Loader2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Cog, Download, Check, ArrowLeft, Shield, ChevronRight, ExternalLink, Loader2, Trash2, Bot, ArrowUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { useEngines, useInstallEngine } from "@/hooks/use-engines";
+import { useEngines, useInstallEngine, useUninstallEngine } from "@/hooks/use-engines";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const categories = ["All", "AI", "Monitoring", "Notifications", "Data", "Automation", "DevOps"];
+const SORTS = [
+  { key: "name", label: "Name" },
+  { key: "stars", label: "Popularity" },
+  { key: "category", label: "Category" },
+] as const;
 
 const Engines = () => {
   const { data: engines = [], isLoading } = useEngines();
   const installMutation = useInstallEngine();
+  const uninstallMutation = useUninstallEngine();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [sort, setSort] = useState<"name" | "stars" | "category">("name");
+  const [showInstalledOnly, setShowInstalledOnly] = useState(false);
 
   const selected = engines.find((e) => e.id === selectedId);
 
@@ -20,17 +30,37 @@ const Engines = () => {
     installMutation.mutate(engineId, {
       onSuccess: () => {
         const engine = engines.find((e) => e.id === engineId);
-        toast.success(`${engine?.name || "Engine"} installed successfully`);
+        toast.success(`${engine?.name || "Engine"} installed`);
       },
       onError: (err) => toast.error(`Install failed: ${err.message}`),
     });
   };
 
-  const filtered = engines.filter((e) => {
-    if (activeCategory !== "All" && e.category !== activeCategory) return false;
-    if (search && !e.name.toLowerCase().includes(search.toLowerCase()) && !e.description.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const handleUninstall = (engineId: string, name: string) => {
+    if (!confirm(`Uninstall ${name}? Agents using it will stop working.`)) return;
+    uninstallMutation.mutate(engineId, {
+      onSuccess: () => toast.success(`${name} uninstalled`),
+      onError: (err) => toast.error(err.message),
+    });
+  };
+
+  const filtered = useMemo(() => {
+    const list = engines.filter((e) => {
+      if (showInstalledOnly && !e.installed) return false;
+      if (activeCategory !== "All" && e.category !== activeCategory) return false;
+      if (search && !e.name.toLowerCase().includes(search.toLowerCase()) && !e.description.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+    return list.sort((a, b) => {
+      if (sort === "name") return a.name.localeCompare(b.name);
+      if (sort === "stars") {
+        const sa = parseFloat((a.stars || "0").replace(/[^\d.]/g, "")) || 0;
+        const sb = parseFloat((b.stars || "0").replace(/[^\d.]/g, "")) || 0;
+        return sb - sa;
+      }
+      return (a.category || "").localeCompare(b.category || "");
+    });
+  }, [engines, activeCategory, search, sort, showInstalledOnly]);
 
   if (isLoading) {
     return (
