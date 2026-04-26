@@ -60,7 +60,10 @@ export function CommandBar() {
         <div className="hidden lg:flex items-center gap-1.5 text-xs text-foreground/70 font-medium whitespace-nowrap px-3 py-1 rounded-md border border-border bg-card">
           <span>🪙</span>
           <span>ClawOS is tokenized! Support the Project</span>
-          <a href="https://pump.fun" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-primary/80 transition-colors">HERE</a>
+          <a href="https://pump.fun/coin/4huAs1rJtKySwiaR3x6SE8DsKRr2JsSXAcKVt6HTpump" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-primary/80 transition-colors">HERE</a>
+          <span className="text-foreground/50">·</span>
+          <span>Or BUY</span>
+          <span className="font-mono text-[10px] text-foreground/80 truncate max-w-[180px]">4huAs1rJtKySwiaR3x6SE8DsKRr2JsSXAcKVt6HTpump</span>
         </div>
       </div>
 
