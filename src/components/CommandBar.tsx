@@ -84,29 +84,30 @@ export function CommandBar() {
       </motion.button>
 
       {/* Actions */}
-      <div className="flex items-center gap-0.5 flex-shrink-0">
+      <div className="flex items-center gap-0.5 flex-shrink-0 p-0.5 rounded-xl bg-card/40 border border-border/50 backdrop-blur">
         {/* ClawHub */}
         <motion.a
           href="https://clawhub.com/skills/clawos-x-agent"
           target="_blank"
           rel="noopener noreferrer"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="p-2 rounded-lg hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
+          className="p-1.5 rounded-lg hover:bg-primary/10 hover:ring-1 hover:ring-primary/30 transition-all text-foreground/60 hover:text-primary"
           title="ClawHub"
         >
-          <Hexagon className="w-3.5 h-3.5" />
+          <Hexagon className="w-3.5 h-3.5" strokeWidth={2} />
         </motion.a>
         {/* X / Twitter */}
         <motion.a
           href="https://x.com/clawos_bot"
           target="_blank"
           rel="noopener noreferrer"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
           transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="p-2 rounded-lg hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
+          className="p-1.5 rounded-lg hover:bg-primary/10 hover:ring-1 hover:ring-primary/30 transition-all text-foreground/60 hover:text-primary"
+          title="X / Twitter"
         >
           <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="currentColor">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -116,14 +117,15 @@ export function CommandBar() {
         <div ref={notifRef} className="relative">
           <motion.button
             onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false); }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="relative p-2 rounded-lg hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
+            className="relative p-1.5 rounded-lg hover:bg-primary/10 hover:ring-1 hover:ring-primary/30 transition-all text-foreground/60 hover:text-primary"
+            title="Notifications"
           >
-            <Bell className="w-3.5 h-3.5" />
+            <Bell className="w-3.5 h-3.5" strokeWidth={2} />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary" />
+              <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_hsl(var(--primary))]" />
             )}
           </motion.button>
 
@@ -181,12 +183,13 @@ export function CommandBar() {
         <div ref={profileRef} className="relative">
           <motion.button
             onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false); }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="p-2 rounded-lg hover:bg-card transition-colors text-muted-foreground hover:text-foreground"
+            className="p-1.5 rounded-lg hover:bg-primary/10 hover:ring-1 hover:ring-primary/30 transition-all text-foreground/60 hover:text-primary"
+            title="Profile"
           >
-            <User className="w-3.5 h-3.5" />
+            <User className="w-3.5 h-3.5" strokeWidth={2} />
           </motion.button>
 
           <AnimatePresence>
