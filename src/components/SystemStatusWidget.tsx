@@ -375,32 +375,87 @@ export function SystemStatusWidget() {
                 <label className="flex items-center justify-between gap-2 cursor-pointer">
                   <span className="flex items-center gap-1.5 text-[11px] text-foreground">
                     <BellRing className="w-3 h-3 text-muted-foreground" />
-                    Notifications for status changes
+                    Status-change notifications
                   </span>
-                  <button
-                    onClick={() => updatePrefs({ alertsEnabled: !prefs.alertsEnabled })}
-                    className={cn(
-                      "w-8 h-4 rounded-full p-0.5 transition-colors flex",
-                      prefs.alertsEnabled ? "bg-primary justify-end" : "bg-muted justify-start"
-                    )}
-                  >
-                    <motion.span layout className="w-3 h-3 rounded-full bg-background" />
-                  </button>
+                  <Toggle on={prefs.alertsEnabled} onClick={() => updatePrefs({ alertsEnabled: !prefs.alertsEnabled })} />
                 </label>
-                <div className={cn("flex items-center gap-2 transition-opacity", !prefs.alertsEnabled && "opacity-40 pointer-events-none")}>
-                  <span className="text-[10px] text-muted-foreground w-32">Failure-rate alert ≥</span>
-                  <input
-                    type="range"
-                    min={10}
-                    max={90}
-                    step={5}
-                    value={prefs.failureRateAlertPct}
-                    onChange={(e) => updatePrefs({ failureRateAlertPct: Number(e.target.value) })}
-                    className="flex-1 accent-primary"
+
+                <div className={cn("space-y-1.5 pl-4 border-l border-border/60", !prefs.alertsEnabled && "opacity-40 pointer-events-none")}>
+                  <label className="flex items-center justify-between gap-2 cursor-pointer">
+                    <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <AlertOctagon className="w-2.5 h-2.5 text-destructive/70" />
+                      Worker Down
+                    </span>
+                    <Toggle small on={prefs.alertWorkerDown} onClick={() => updatePrefs({ alertWorkerDown: !prefs.alertWorkerDown })} />
+                  </label>
+                  <label className="flex items-center justify-between gap-2 cursor-pointer">
+                    <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <Radio className="w-2.5 h-2.5 text-success/70" />
+                      Worker Recovery
+                    </span>
+                    <Toggle small on={prefs.alertWorkerRecovery} onClick={() => updatePrefs({ alertWorkerRecovery: !prefs.alertWorkerRecovery })} />
+                  </label>
+                  <label className="flex items-center justify-between gap-2 cursor-pointer">
+                    <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <XCircle className="w-2.5 h-2.5 text-warning/70" />
+                      High Failure Rate
+                    </span>
+                    <Toggle small on={prefs.alertFailureRate} onClick={() => updatePrefs({ alertFailureRate: !prefs.alertFailureRate })} />
+                  </label>
+                  <div className={cn("flex items-center gap-2 pt-1", !prefs.alertFailureRate && "opacity-40 pointer-events-none")}>
+                    <span className="text-[10px] text-muted-foreground/70 w-24">Trigger at ≥</span>
+                    <input
+                      type="range"
+                      min={10}
+                      max={90}
+                      step={5}
+                      value={prefs.failureRateAlertPct}
+                      onChange={(e) => updatePrefs({ failureRateAlertPct: Number(e.target.value) })}
+                      className="flex-1 accent-primary"
+                    />
+                    <span className="text-[10px] text-foreground font-mono w-10 text-right">
+                      {prefs.failureRateAlertPct}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Alert preview */}
+                <div className={cn("mt-2 p-2 rounded-md bg-background/60 border border-border/60 space-y-1.5", !prefs.alertsEnabled && "opacity-40")}>
+                  <div className="text-[9px] uppercase tracking-wider text-muted-foreground/60 font-semibold">
+                    Alert preview
+                  </div>
+                  <AlertPreviewRow
+                    enabled={prefs.alertsEnabled && prefs.alertWorkerDown}
+                    icon={AlertOctagon}
+                    color="text-destructive"
+                    title="Workers unresponsive"
+                    detail={`Triggers when no heartbeat in ${prefs.downThresholdMin}m AND jobs are queued.`}
                   />
-                  <span className="text-[10px] text-foreground font-mono w-10 text-right">
-                    {prefs.failureRateAlertPct}%
-                  </span>
+                  <AlertPreviewRow
+                    enabled={prefs.alertsEnabled && prefs.alertWorkerRecovery}
+                    icon={Radio}
+                    color="text-success"
+                    title="Workers back online"
+                    detail="Triggers when heartbeat resumes after a Down state."
+                  />
+                  <AlertPreviewRow
+                    enabled={prefs.alertsEnabled && prefs.alertFailureRate}
+                    icon={XCircle}
+                    color="text-warning"
+                    title="Elevated automation failure rate"
+                    detail={`Triggers when failures cross ${prefs.failureRateAlertPct}% over the last ${prefs.windowSize} runs (min 3 runs).`}
+                  />
+                  {/* Live status */}
+                  <div className="pt-1 mt-1 border-t border-border/40 text-[9px] text-muted-foreground/70 leading-relaxed">
+                    <span className="text-muted-foreground">Now: </span>
+                    {recent.length < 3
+                      ? "Need at least 3 runs for failure-rate evaluation."
+                      : failurePct >= prefs.failureRateAlertPct
+                        ? `Currently ${failurePct}% failures — failure-rate alert ${prefs.alertsEnabled && prefs.alertFailureRate ? "would fire on next threshold cross" : "muted"}.`
+                        : health === "down"
+                          ? "Worker-down alert active."
+                          : `Currently ${failurePct}% failures, ${Math.round(minutesSinceLast)}m since heartbeat — no alert pending.`}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center justify-between pt-1">
