@@ -1,15 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Activity, Cpu, ListOrdered, CheckCircle2, XCircle, Loader2, Clock,
-  RefreshCw, AlertOctagon, Radio, Settings2, BellRing, Check,
+  RefreshCw, AlertOctagon, Radio, Settings2, BellRing, Check, Bell, History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRuns } from "@/hooks/use-runs";
 import { timeAgo } from "@/hooks/use-activity";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState, ComponentType } from "react";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useRealtimeTable } from "@/hooks/use-realtime";
 
 type Health = "operational" | "degraded" | "idle" | "down";
 
@@ -29,6 +30,9 @@ interface Prefs {
   windowSize: number;
   downThresholdMin: number;
   alertsEnabled: boolean;
+  alertWorkerDown: boolean;
+  alertWorkerRecovery: boolean;
+  alertFailureRate: boolean;
   failureRateAlertPct: number; // 0-100
 }
 
@@ -37,6 +41,9 @@ const DEFAULT_PREFS: Prefs = {
   windowSize: 20,
   downThresholdMin: 30,
   alertsEnabled: true,
+  alertWorkerDown: true,
+  alertWorkerRecovery: true,
+  alertFailureRate: true,
   failureRateAlertPct: 50,
 };
 
@@ -81,6 +88,24 @@ export function SystemStatusWidget() {
   const updatePrefs = (patch: Partial<Prefs>) => setPrefs((p) => ({ ...p, ...patch }));
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+
+  // Live "Recent alerts" — last 10 system status-change events
+  useRealtimeTable("activity_events", [["system-alerts"]]);
+  const { data: recentAlerts = [] } = useQuery({
+    queryKey: ["system-alerts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("activity_events")
+        .select("id,type,message,detail,created_at")
+        .eq("category", "System")
+        .in("type", ["error", "warning", "online"])
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      return (data || []) as Array<{ id: string; type: string; message: string; detail: string | null; created_at: string }>;
+    },
+  });
 
   // Fresh clock for "time since heartbeat"
   const [now, setNow] = useState(() => Date.now());
@@ -177,7 +202,7 @@ export function SystemStatusWidget() {
     };
 
     // Worker-down transition
-    if (health === "down" && lastAlertedHealth.current !== "down") {
+    if (prefs.alertWorkerDown && health === "down" && lastAlertedHealth.current !== "down") {
       sendAlert(
         "error",
         "System",
@@ -186,11 +211,12 @@ export function SystemStatusWidget() {
       );
     }
     // Recovery from down
-    if (health !== "down" && lastAlertedHealth.current === "down") {
+    if (prefs.alertWorkerRecovery && health !== "down" && lastAlertedHealth.current === "down") {
       sendAlert("online", "System", "Workers back online", "Heartbeat restored.");
     }
     // High-failure alert (cross threshold upward)
     if (
+      prefs.alertFailureRate &&
       failurePct >= prefs.failureRateAlertPct &&
       lastAlertedFailurePct.current < prefs.failureRateAlertPct &&
       recent.length >= 3
@@ -205,7 +231,7 @@ export function SystemStatusWidget() {
 
     lastAlertedHealth.current = health;
     lastAlertedFailurePct.current = failurePct;
-  }, [health, failurePct, prefs.alertsEnabled, prefs.failureRateAlertPct, breakdown.failed, recent.length, queued, minutesSinceLast]);
+  }, [health, failurePct, prefs.alertsEnabled, prefs.alertWorkerDown, prefs.alertWorkerRecovery, prefs.alertFailureRate, prefs.failureRateAlertPct, breakdown.failed, recent.length, queued, minutesSinceLast]);
 
   // ---- Visuals ----
   const healthColor: Record<Health, string> = {
@@ -244,12 +270,13 @@ export function SystemStatusWidget() {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.06 }}
-      className="p-4 rounded-lg surface-elevated"
-    >
+    <div className="space-y-2">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.06 }}
+        className="p-4 rounded-lg surface-elevated"
+      >
       {/* Header */}
       <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
         <div className="flex items-center gap-2">
@@ -368,32 +395,87 @@ export function SystemStatusWidget() {
                 <label className="flex items-center justify-between gap-2 cursor-pointer">
                   <span className="flex items-center gap-1.5 text-[11px] text-foreground">
                     <BellRing className="w-3 h-3 text-muted-foreground" />
-                    Notifications for status changes
+                    Status-change notifications
                   </span>
-                  <button
-                    onClick={() => updatePrefs({ alertsEnabled: !prefs.alertsEnabled })}
-                    className={cn(
-                      "w-8 h-4 rounded-full p-0.5 transition-colors flex",
-                      prefs.alertsEnabled ? "bg-primary justify-end" : "bg-muted justify-start"
-                    )}
-                  >
-                    <motion.span layout className="w-3 h-3 rounded-full bg-background" />
-                  </button>
+                  <Toggle on={prefs.alertsEnabled} onClick={() => updatePrefs({ alertsEnabled: !prefs.alertsEnabled })} />
                 </label>
-                <div className={cn("flex items-center gap-2 transition-opacity", !prefs.alertsEnabled && "opacity-40 pointer-events-none")}>
-                  <span className="text-[10px] text-muted-foreground w-32">Failure-rate alert ≥</span>
-                  <input
-                    type="range"
-                    min={10}
-                    max={90}
-                    step={5}
-                    value={prefs.failureRateAlertPct}
-                    onChange={(e) => updatePrefs({ failureRateAlertPct: Number(e.target.value) })}
-                    className="flex-1 accent-primary"
+
+                <div className={cn("space-y-1.5 pl-4 border-l border-border/60", !prefs.alertsEnabled && "opacity-40 pointer-events-none")}>
+                  <label className="flex items-center justify-between gap-2 cursor-pointer">
+                    <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <AlertOctagon className="w-2.5 h-2.5 text-destructive/70" />
+                      Worker Down
+                    </span>
+                    <Toggle small on={prefs.alertWorkerDown} onClick={() => updatePrefs({ alertWorkerDown: !prefs.alertWorkerDown })} />
+                  </label>
+                  <label className="flex items-center justify-between gap-2 cursor-pointer">
+                    <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <Radio className="w-2.5 h-2.5 text-success/70" />
+                      Worker Recovery
+                    </span>
+                    <Toggle small on={prefs.alertWorkerRecovery} onClick={() => updatePrefs({ alertWorkerRecovery: !prefs.alertWorkerRecovery })} />
+                  </label>
+                  <label className="flex items-center justify-between gap-2 cursor-pointer">
+                    <span className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <XCircle className="w-2.5 h-2.5 text-warning/70" />
+                      High Failure Rate
+                    </span>
+                    <Toggle small on={prefs.alertFailureRate} onClick={() => updatePrefs({ alertFailureRate: !prefs.alertFailureRate })} />
+                  </label>
+                  <div className={cn("flex items-center gap-2 pt-1", !prefs.alertFailureRate && "opacity-40 pointer-events-none")}>
+                    <span className="text-[10px] text-muted-foreground/70 w-24">Trigger at ≥</span>
+                    <input
+                      type="range"
+                      min={10}
+                      max={90}
+                      step={5}
+                      value={prefs.failureRateAlertPct}
+                      onChange={(e) => updatePrefs({ failureRateAlertPct: Number(e.target.value) })}
+                      className="flex-1 accent-primary"
+                    />
+                    <span className="text-[10px] text-foreground font-mono w-10 text-right">
+                      {prefs.failureRateAlertPct}%
+                    </span>
+                  </div>
+                </div>
+
+                {/* Alert preview */}
+                <div className={cn("mt-2 p-2 rounded-md bg-background/60 border border-border/60 space-y-1.5", !prefs.alertsEnabled && "opacity-40")}>
+                  <div className="text-[9px] uppercase tracking-wider text-muted-foreground/60 font-semibold">
+                    Alert preview
+                  </div>
+                  <AlertPreviewRow
+                    enabled={prefs.alertsEnabled && prefs.alertWorkerDown}
+                    icon={AlertOctagon}
+                    color="text-destructive"
+                    title="Workers unresponsive"
+                    detail={`Triggers when no heartbeat in ${prefs.downThresholdMin}m AND jobs are queued.`}
                   />
-                  <span className="text-[10px] text-foreground font-mono w-10 text-right">
-                    {prefs.failureRateAlertPct}%
-                  </span>
+                  <AlertPreviewRow
+                    enabled={prefs.alertsEnabled && prefs.alertWorkerRecovery}
+                    icon={Radio}
+                    color="text-success"
+                    title="Workers back online"
+                    detail="Triggers when heartbeat resumes after a Down state."
+                  />
+                  <AlertPreviewRow
+                    enabled={prefs.alertsEnabled && prefs.alertFailureRate}
+                    icon={XCircle}
+                    color="text-warning"
+                    title="Elevated automation failure rate"
+                    detail={`Triggers when failures cross ${prefs.failureRateAlertPct}% over the last ${prefs.windowSize} runs (min 3 runs).`}
+                  />
+                  {/* Live status */}
+                  <div className="pt-1 mt-1 border-t border-border/40 text-[9px] text-muted-foreground/70 leading-relaxed">
+                    <span className="text-muted-foreground">Now: </span>
+                    {recent.length < 3
+                      ? "Need at least 3 runs for failure-rate evaluation."
+                      : failurePct >= prefs.failureRateAlertPct
+                        ? `Currently ${failurePct}% failures — failure-rate alert ${prefs.alertsEnabled && prefs.alertFailureRate ? "would fire on next threshold cross" : "muted"}.`
+                        : health === "down"
+                          ? "Worker-down alert active."
+                          : `Currently ${failurePct}% failures, ${Math.round(minutesSinceLast)}m since heartbeat — no alert pending.`}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center justify-between pt-1">
@@ -551,7 +633,122 @@ export function SystemStatusWidget() {
           </div>
         </div>
       )}
-    </motion.div>
+      </motion.div>
+
+      {/* Recent alerts panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="rounded-lg surface-elevated overflow-hidden"
+      >
+        <button
+          onClick={() => setAlertsOpen((v) => !v)}
+          className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-muted/30 transition-colors"
+        >
+          <span className="flex items-center gap-2">
+            <Bell className="w-3 h-3 text-muted-foreground" />
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
+              Recent alerts
+            </span>
+            <span className="text-[10px] font-mono text-muted-foreground/60">
+              {recentAlerts.length}
+            </span>
+          </span>
+          <span className="text-[10px] text-muted-foreground/50">{alertsOpen ? "Hide" : "Show"}</span>
+        </button>
+        <AnimatePresence initial={false}>
+          {alertsOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden border-t border-border/50"
+            >
+              {recentAlerts.length === 0 ? (
+                <div className="px-4 py-6 text-center">
+                  <History className="w-4 h-4 text-muted-foreground/30 mx-auto mb-1.5" />
+                  <p className="text-[11px] text-muted-foreground/60">No status-change alerts yet</p>
+                  <p className="text-[10px] text-muted-foreground/40 mt-0.5">
+                    Worker Down, Recovery, and High-Failure events will appear here.
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border/40">
+                  {recentAlerts.map((a) => {
+                    const meta = a.type === "error"
+                      ? { Icon: AlertOctagon, color: "text-destructive", label: "Worker Down" }
+                      : a.type === "online"
+                        ? { Icon: Radio, color: "text-success", label: "Recovery" }
+                        : { Icon: XCircle, color: "text-warning", label: "High Failure Rate" };
+                    return (
+                      <div key={a.id} className="px-4 py-2.5 flex items-start gap-2.5 hover:bg-muted/20 transition-colors">
+                        <meta.Icon className={cn("w-3 h-3 mt-0.5 flex-shrink-0", meta.color)} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[11px] font-medium text-foreground">{a.message}</span>
+                            <span className={cn("text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-semibold", meta.color, "bg-current/8")}>
+                              {meta.label}
+                            </span>
+                          </div>
+                          {a.detail && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5">{a.detail}</p>
+                          )}
+                          <p className="text-[9px] text-muted-foreground/50 mt-0.5 font-mono">
+                            {timeAgo(a.created_at)} · deduped on transition (only fires when state crosses threshold)
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+}
+
+function Toggle({ on, onClick, small }: { on: boolean; onClick: () => void; small?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "rounded-full p-0.5 transition-colors flex flex-shrink-0",
+        small ? "w-6 h-3" : "w-8 h-4",
+        on ? "bg-primary justify-end" : "bg-muted justify-start"
+      )}
+    >
+      <motion.span layout className={cn("rounded-full bg-background", small ? "w-2 h-2" : "w-3 h-3")} />
+    </button>
+  );
+}
+
+function AlertPreviewRow({
+  enabled, icon: Icon, color, title, detail,
+}: {
+  enabled: boolean;
+  icon: ComponentType<{ className?: string }>;
+  color: string;
+  title: string;
+  detail: string;
+}) {
+  return (
+    <div className={cn("flex items-start gap-2 transition-opacity", !enabled && "opacity-40")}>
+      <Icon className={cn("w-2.5 h-2.5 mt-0.5 flex-shrink-0", enabled ? color : "text-muted-foreground")} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <span className={cn("text-[10px] font-medium", enabled ? "text-foreground" : "text-muted-foreground")}>
+            {title}
+          </span>
+          {!enabled && <span className="text-[8px] uppercase tracking-wider text-muted-foreground/60">muted</span>}
+        </div>
+        <p className="text-[9px] text-muted-foreground/70 mt-0.5 leading-snug">{detail}</p>
+      </div>
+    </div>
   );
 }
 
