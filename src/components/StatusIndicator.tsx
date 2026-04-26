@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { forwardRef, ReactNode } from "react";
 
 interface StatusIndicatorProps {
   status: "running" | "success" | "failed" | "pending" | "active" | "inactive" | "skipped" | "retrying" | "error";
@@ -19,16 +19,22 @@ const statusStyles: Record<string, { dot: string; text: string }> = {
   error: { dot: "bg-destructive animate-pulse-soft", text: "text-destructive" },
 };
 
-export function StatusIndicator({ status, children, size = "sm" }: StatusIndicatorProps) {
-  const style = statusStyles[status];
-  return (
-    <span className={cn(
-      "inline-flex items-center gap-1.5 font-medium capitalize",
-      style.text,
-      size === "sm" ? "text-[11px]" : "text-xs"
-    )}>
-      <span className={cn("rounded-full", style.dot, size === "sm" ? "w-1.5 h-1.5" : "w-2 h-2")} />
-      {children || status}
-    </span>
-  );
-}
+export const StatusIndicator = forwardRef<HTMLSpanElement, StatusIndicatorProps>(
+  ({ status, children, size = "sm" }, ref) => {
+    const style = statusStyles[status] || statusStyles.inactive;
+    return (
+      <span
+        ref={ref}
+        className={cn(
+          "inline-flex items-center gap-1.5 font-medium capitalize",
+          style.text,
+          size === "sm" ? "text-[11px]" : "text-xs"
+        )}
+      >
+        <span className={cn("rounded-full", style.dot, size === "sm" ? "w-1.5 h-1.5" : "w-2 h-2")} />
+        {children || status}
+      </span>
+    );
+  }
+);
+StatusIndicator.displayName = "StatusIndicator";
