@@ -98,6 +98,8 @@ const Home = () => {
         ))}
       </motion.div>
 
+      <SystemStatusWidget />
+
       {/* 7-day run trend */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.04 }} className="p-4 rounded-lg surface-elevated">
         <div className="flex items-center justify-between mb-3">
