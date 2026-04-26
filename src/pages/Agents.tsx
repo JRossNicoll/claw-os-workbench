@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Bot, Play, Square, ArrowLeft, Zap, Clock, CheckCircle, Plus, X, Loader2, Trash2 } from "lucide-react";
+import { Bot, Play, Square, ArrowLeft, Zap, Clock, CheckCircle, Plus, X, Loader2, Trash2, MessageSquare } from "lucide-react";
+import { AgentChat } from "@/components/AgentChat";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAgents, useToggleAgent, useCreateAgent, useDeleteAgent } from "@/hooks/use-agents";
