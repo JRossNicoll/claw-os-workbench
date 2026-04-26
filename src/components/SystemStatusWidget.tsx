@@ -270,12 +270,13 @@ export function SystemStatusWidget() {
   ];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.06 }}
-      className="p-4 rounded-lg surface-elevated"
-    >
+    <div className="space-y-2">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.06 }}
+        className="p-4 rounded-lg surface-elevated"
+      >
       {/* Header */}
       <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
         <div className="flex items-center gap-2">
