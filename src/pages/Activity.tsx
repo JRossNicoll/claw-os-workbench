@@ -207,14 +207,16 @@ const Activity = () => {
         </div>
         {categories.length > 1 && (
           <div className="flex items-center gap-1.5 flex-wrap">
-            <Filter className="w-3 h-3 text-muted-foreground/40" />
+            <span className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-muted-foreground/50 mr-1">
+              <Filter className="w-2.5 h-2.5" /> Module
+            </span>
             {categories.map((c) => (
               <button
                 key={c}
                 onClick={() => setCategory(c)}
                 className={cn(
                   "px-2 py-0.5 rounded text-[10px] font-medium transition-colors",
-                  category === c ? "text-primary bg-primary/8" : "text-muted-foreground hover:text-foreground bg-card border border-border"
+                  category === c ? "text-primary bg-primary/8 border border-primary/20" : "text-muted-foreground hover:text-foreground bg-card border border-border"
                 )}
               >
                 {c}
@@ -222,6 +224,49 @@ const Activity = () => {
             ))}
           </div>
         )}
+        {statuses.length > 1 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[9px] uppercase tracking-wider text-muted-foreground/50 mr-1">Status</span>
+            {statuses.map((s) => (
+              <button
+                key={s}
+                onClick={() => setStatus(s)}
+                className={cn(
+                  "px-2 py-0.5 rounded text-[10px] font-medium capitalize transition-colors",
+                  status === s ? "text-primary bg-primary/8 border border-primary/20" : "text-muted-foreground hover:text-foreground bg-card border border-border"
+                )}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-muted-foreground/50 mr-1">
+            <Bookmark className="w-2.5 h-2.5" /> Presets
+          </span>
+          {presets.map((p) => (
+            <span key={p.name} className="group inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded text-[10px] font-medium text-muted-foreground bg-card border border-border hover:text-foreground transition-colors">
+              <button onClick={() => applyPreset(p)}>{p.name}</button>
+              <button onClick={() => deletePreset(p.name)} title="Delete preset" className="opacity-0 group-hover:opacity-100 hover:text-destructive">
+                <X className="w-2.5 h-2.5" />
+              </button>
+            </span>
+          ))}
+          <button
+            onClick={savePreset}
+            disabled={!hasActiveFilters}
+            title={hasActiveFilters ? "Save current filters as preset" : "Apply some filters first"}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/30 transition-colors disabled:opacity-40 disabled:hover:text-muted-foreground"
+          >
+            <BookmarkPlus className="w-2.5 h-2.5" /> Save
+          </button>
+          {hasActiveFilters && (
+            <button onClick={clearFilters} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-muted-foreground hover:text-destructive transition-colors">
+              <X className="w-2.5 h-2.5" /> Clear
+            </button>
+          )}
+        </div>
         <p className="text-[10px] text-muted-foreground/50">
           Showing {filtered.length} of {events.length} events
         </p>
@@ -233,6 +278,8 @@ const Activity = () => {
           <p className="text-sm text-muted-foreground">{events.length === 0 ? "No activity yet" : "No events match your filters"}</p>
           <p className="text-xs text-muted-foreground/60 mt-1">{events.length === 0 ? "Events will appear here as you use the system" : "Try clearing filters or expanding the time range"}</p>
         </div>
+      ) : terminal ? (
+        <TerminalFeed events={filtered} />
       ) : (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="space-y-6">
           <AnimatePresence>
