@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Download, Play, Pause, CheckCircle, AlertTriangle,
   Wifi, RefreshCw, Shield, Zap, Search, Trash2, FileDown, Filter,
+  Bookmark, BookmarkPlus, Terminal, X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
