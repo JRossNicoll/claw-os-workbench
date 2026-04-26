@@ -12,6 +12,7 @@ import { useAutomations } from "@/hooks/use-automations";
 import { useRuns, useRunAutomation } from "@/hooks/use-runs";
 import { timeAgo } from "@/hooks/use-activity";
 import { toast } from "sonner";
+import { AutomationBuilder } from "@/components/AutomationBuilder";
 
 const stepIcons: Record<string, typeof CheckCircle> = {
   success: CheckCircle,
