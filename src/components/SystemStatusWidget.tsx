@@ -138,7 +138,7 @@ export function SystemStatusWidget() {
           {lastRun ? (
             <>
               <div className={cn("text-sm font-semibold flex items-center gap-1.5", lastRunColor)}>
-                <lastRunIcon className={cn("w-3 h-3", lastRun.status === "running" && "animate-spin")} />
+                <LastRunIcon className={cn("w-3 h-3", lastRun.status === "running" && "animate-spin")} />
                 <span className="capitalize">{lastRun.status}</span>
               </div>
               <div className="text-[10px] text-muted-foreground/60 mt-1 truncate" title={lastRun.automation_name}>
