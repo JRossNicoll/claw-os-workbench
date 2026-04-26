@@ -38,13 +38,34 @@ const TIME_RANGES = [
   { label: "7d", ms: 7 * 24 * 60 * 60 * 1000 },
 ];
 
+const PRESETS_KEY = "clawos-activity-presets-v1";
+const PREFS_KEY = "clawos-activity-prefs-v1";
+
+interface Preset {
+  name: string;
+  search: string;
+  category: string;
+  status: string;
+  range: number;
+}
+
 const Activity = () => {
   const { data: events = [], isLoading } = useActivity();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("All");
+  const [status, setStatus] = useState<string>("All");
   const [range, setRange] = useState<number>(Infinity);
   const [busy, setBusy] = useState(false);
+  const [terminal, setTerminal] = useState<boolean>(() => {
+    try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}").terminal ?? false; } catch { return false; }
+  });
+  const [presets, setPresets] = useState<Preset[]>(() => {
+    try { return JSON.parse(localStorage.getItem(PRESETS_KEY) || "[]"); } catch { return []; }
+  });
+
+  useEffect(() => { localStorage.setItem(PRESETS_KEY, JSON.stringify(presets)); }, [presets]);
+  useEffect(() => { localStorage.setItem(PREFS_KEY, JSON.stringify({ terminal })); }, [terminal]);
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -52,10 +73,17 @@ const Activity = () => {
     return ["All", ...Array.from(set)];
   }, [events]);
 
+  const statuses = useMemo(() => {
+    const set = new Set<string>();
+    events.forEach((e) => e.type && set.add(e.type));
+    return ["All", ...Array.from(set)];
+  }, [events]);
+
   const filtered = useMemo(() => {
     const cutoff = Date.now() - range;
     return events.filter((e) => {
       if (category !== "All" && e.category !== category) return false;
+      if (status !== "All" && e.type !== status) return false;
       if (range !== Infinity && new Date(e.created_at).getTime() < cutoff) return false;
       if (search) {
         const q = search.toLowerCase();
@@ -63,7 +91,26 @@ const Activity = () => {
       }
       return true;
     });
-  }, [events, category, range, search]);
+  }, [events, category, status, range, search]);
+
+  const savePreset = () => {
+    const name = prompt("Preset name?");
+    if (!name) return;
+    const next: Preset = { name, search, category, status, range };
+    setPresets((p) => [...p.filter((x) => x.name !== name), next]);
+    toast.success(`Saved preset "${name}"`);
+  };
+  const applyPreset = (p: Preset) => {
+    setSearch(p.search); setCategory(p.category); setStatus(p.status); setRange(p.range);
+    toast.success(`Applied "${p.name}"`);
+  };
+  const deletePreset = (name: string) => {
+    setPresets((p) => p.filter((x) => x.name !== name));
+  };
+  const clearFilters = () => {
+    setSearch(""); setCategory("All"); setStatus("All"); setRange(Infinity);
+  };
+  const hasActiveFilters = search || category !== "All" || status !== "All" || range !== Infinity;
 
   const grouped = useMemo(() => {
     const groups: Record<string, typeof filtered> = {};
