@@ -38,7 +38,7 @@ export function CommandBar() {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="h-12 flex items-center justify-between px-4 sm:px-8 md:px-12 sticky top-0 z-20 bg-background/80 backdrop-blur-2xl border-b border-red-subtle"
+      className="h-12 flex items-center justify-between px-4 sm:px-8 md:px-12 sticky top-0 z-20 bg-background/70 backdrop-blur-2xl border-b border-border/60 shadow-[0_1px_0_0_hsl(var(--primary)/0.06)]"
     >
       {/* Brand + Nav */}
       <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
@@ -54,9 +54,9 @@ export function CommandBar() {
           </div>
           <span className="font-semibold text-foreground tracking-tight text-sm hidden sm:inline">ClawOS</span>
         </motion.div>
-        <div className="w-px h-4 bg-border hidden sm:block" />
+        <div className="w-px h-5 bg-gradient-to-b from-transparent via-border to-transparent hidden sm:block" />
         <WorkspaceNav />
-        <div className="w-px h-4 bg-border hidden lg:block" />
+        <div className="w-px h-5 bg-gradient-to-b from-transparent via-border to-transparent hidden lg:block" />
         <div className="hidden lg:flex items-center gap-1.5 text-xs text-foreground/70 font-medium whitespace-nowrap px-3 py-1 rounded-md border border-border bg-card">
           <span>🪙</span>
           <span>ClawOS is tokenized! Support the Project</span>
@@ -71,14 +71,14 @@ export function CommandBar() {
       <div className="flex-1" />
       <motion.button
         onClick={openSearch}
-        whileHover={{ scale: 1.01, borderColor: "hsl(var(--primary) / 0.25)" }}
+        whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.98 }}
         transition={{ type: "spring", stiffness: 400, damping: 25 }}
-        className="flex items-center gap-2 bg-card border border-red-subtle rounded-lg px-3 py-1.5 w-10 sm:w-48 md:w-72 group cursor-pointer mr-2 hover:border-primary/25 transition-colors"
+        className="flex items-center gap-2 bg-card/60 backdrop-blur border border-border/70 rounded-lg px-3 py-1.5 w-10 sm:w-48 md:w-72 group cursor-pointer mr-3 hover:border-primary/40 hover:bg-card/90 hover:shadow-[0_0_20px_-8px_hsl(var(--primary)/0.5)] transition-all"
       >
-        <Search className="w-3.5 h-3.5 sm:w-3 sm:h-3 text-muted-foreground flex-shrink-0" />
-        <span className="text-xs text-muted-foreground/50 flex-1 text-left hidden sm:inline truncate">Search or ⌘K...</span>
-        <kbd className="hidden md:inline text-[9px] text-muted-foreground/40 border border-border rounded px-1 py-px">
+        <Search className="w-3.5 h-3.5 sm:w-3 sm:h-3 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+        <span className="text-xs text-muted-foreground/60 flex-1 text-left hidden sm:inline truncate">Search or ⌘K…</span>
+        <kbd className="hidden md:inline text-[9px] text-muted-foreground/60 border border-border/70 bg-background/60 rounded px-1.5 py-px font-mono">
           ⌘K
         </kbd>
       </motion.button>
