@@ -183,6 +183,7 @@ const Agents = () => {
   const deleteMutation = useDeleteAgent();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [chatAgentId, setChatAgentId] = useState<string | null>(null);
 
   const selected = agents.find((a) => a.id === selectedId);
 
