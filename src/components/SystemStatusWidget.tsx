@@ -633,7 +633,122 @@ export function SystemStatusWidget() {
           </div>
         </div>
       )}
-    </motion.div>
+      </motion.div>
+
+      {/* Recent alerts panel */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="rounded-lg surface-elevated overflow-hidden"
+      >
+        <button
+          onClick={() => setAlertsOpen((v) => !v)}
+          className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-muted/30 transition-colors"
+        >
+          <span className="flex items-center gap-2">
+            <Bell className="w-3 h-3 text-muted-foreground" />
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
+              Recent alerts
+            </span>
+            <span className="text-[10px] font-mono text-muted-foreground/60">
+              {recentAlerts.length}
+            </span>
+          </span>
+          <span className="text-[10px] text-muted-foreground/50">{alertsOpen ? "Hide" : "Show"}</span>
+        </button>
+        <AnimatePresence initial={false}>
+          {alertsOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden border-t border-border/50"
+            >
+              {recentAlerts.length === 0 ? (
+                <div className="px-4 py-6 text-center">
+                  <History className="w-4 h-4 text-muted-foreground/30 mx-auto mb-1.5" />
+                  <p className="text-[11px] text-muted-foreground/60">No status-change alerts yet</p>
+                  <p className="text-[10px] text-muted-foreground/40 mt-0.5">
+                    Worker Down, Recovery, and High-Failure events will appear here.
+                  </p>
+                </div>
+              ) : (
+                <div className="divide-y divide-border/40">
+                  {recentAlerts.map((a) => {
+                    const meta = a.type === "error"
+                      ? { Icon: AlertOctagon, color: "text-destructive", label: "Worker Down" }
+                      : a.type === "online"
+                        ? { Icon: Radio, color: "text-success", label: "Recovery" }
+                        : { Icon: XCircle, color: "text-warning", label: "High Failure Rate" };
+                    return (
+                      <div key={a.id} className="px-4 py-2.5 flex items-start gap-2.5 hover:bg-muted/20 transition-colors">
+                        <meta.Icon className={cn("w-3 h-3 mt-0.5 flex-shrink-0", meta.color)} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[11px] font-medium text-foreground">{a.message}</span>
+                            <span className={cn("text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-semibold", meta.color, "bg-current/8")}>
+                              {meta.label}
+                            </span>
+                          </div>
+                          {a.detail && (
+                            <p className="text-[10px] text-muted-foreground mt-0.5">{a.detail}</p>
+                          )}
+                          <p className="text-[9px] text-muted-foreground/50 mt-0.5 font-mono">
+                            {timeAgo(a.created_at)} · deduped on transition (only fires when state crosses threshold)
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+}
+
+function Toggle({ on, onClick, small }: { on: boolean; onClick: () => void; small?: boolean }) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "rounded-full p-0.5 transition-colors flex flex-shrink-0",
+        small ? "w-6 h-3" : "w-8 h-4",
+        on ? "bg-primary justify-end" : "bg-muted justify-start"
+      )}
+    >
+      <motion.span layout className={cn("rounded-full bg-background", small ? "w-2 h-2" : "w-3 h-3")} />
+    </button>
+  );
+}
+
+function AlertPreviewRow({
+  enabled, icon: Icon, color, title, detail,
+}: {
+  enabled: boolean;
+  icon: ComponentType<{ className?: string }>;
+  color: string;
+  title: string;
+  detail: string;
+}) {
+  return (
+    <div className={cn("flex items-start gap-2 transition-opacity", !enabled && "opacity-40")}>
+      <Icon className={cn("w-2.5 h-2.5 mt-0.5 flex-shrink-0", enabled ? color : "text-muted-foreground")} />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <span className={cn("text-[10px] font-medium", enabled ? "text-foreground" : "text-muted-foreground")}>
+            {title}
+          </span>
+          {!enabled && <span className="text-[8px] uppercase tracking-wider text-muted-foreground/60">muted</span>}
+        </div>
+        <p className="text-[9px] text-muted-foreground/70 mt-0.5 leading-snug">{detail}</p>
+      </div>
+    </div>
   );
 }
 
