@@ -162,6 +162,9 @@ const Activity = () => {
           <p className="text-sm text-muted-foreground mt-1">Live system events and audit log</p>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={() => setTerminal((t) => !t)} title="Toggle terminal stream view" className={cn("flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] border border-border transition-colors", terminal ? "text-primary bg-primary/8" : "text-muted-foreground hover:text-foreground hover:bg-card")}>
+            <Terminal className="w-3 h-3" /> {terminal ? "Visual" : "Terminal"}
+          </button>
           <button onClick={handleExport} disabled={!filtered.length} title="Export filtered events" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-muted-foreground hover:text-foreground border border-border hover:bg-card transition-colors disabled:opacity-40">
             <FileDown className="w-3 h-3" /> Export
           </button>
