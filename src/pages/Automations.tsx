@@ -42,6 +42,7 @@ const Automations = () => {
   const runMutation = useRunAutomation();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<"steps" | "history" | "logs">("steps");
+  const [showBuilder, setShowBuilder] = useState(false);
   const navigate = useNavigate();
 
   const selected = automations.find((a) => a.id === selectedId);
