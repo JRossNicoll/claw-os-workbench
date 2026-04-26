@@ -159,12 +159,38 @@ const Engines = () => {
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.06 }} className="space-y-3">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search engines..."
-          className="w-full max-w-xs bg-card border border-border rounded-lg px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/30 transition-colors"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search engines..."
+            className="flex-1 max-w-xs bg-card border border-border rounded-lg px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/30 transition-colors"
+          />
+          <div className="flex items-center gap-1 ml-auto">
+            <ArrowUpDown className="w-3 h-3 text-muted-foreground/40" />
+            {SORTS.map((s) => (
+              <button
+                key={s.key}
+                onClick={() => setSort(s.key)}
+                className={cn(
+                  "px-2 py-1 rounded text-[10px] font-medium transition-colors",
+                  sort === s.key ? "text-primary bg-primary/8" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {s.label}
+              </button>
+            ))}
+            <button
+              onClick={() => setShowInstalledOnly((v) => !v)}
+              className={cn(
+                "flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-colors ml-1",
+                showInstalledOnly ? "text-success bg-success/8" : "text-muted-foreground hover:text-foreground border border-border"
+              )}
+            >
+              <Check className="w-2.5 h-2.5" /> Installed
+            </button>
+          </div>
+        </div>
         <div className="flex gap-1.5 flex-wrap">
           {categories.map((cat) => (
             <button
