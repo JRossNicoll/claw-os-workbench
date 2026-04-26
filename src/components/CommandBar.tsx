@@ -63,7 +63,7 @@ export function CommandBar() {
           <a href="https://pump.fun/coin/4huAs1rJtKySwiaR3x6SE8DsKRr2JsSXAcKVt6HTpump" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-primary/80 transition-colors">HERE</a>
           <span className="text-foreground/50">·</span>
           <span>Or BUY</span>
-          <span className="font-mono text-[10px] text-foreground/80 truncate max-w-[180px]">4huAs1rJtKySwiaR3x6SE8DsKRr2JsSXAcKVt6HTpump</span>
+          <span className="font-mono text-[10px] text-primary">4huAs1rJtKySwiaR3x6SE8DsKRr2JsSXAcKVt6HTpump</span>
         </div>
       </div>
 
