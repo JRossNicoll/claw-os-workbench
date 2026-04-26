@@ -205,8 +205,15 @@ const Automations = () => {
           <button onClick={() => navigate("/templates")} className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted border border-border transition-colors">
             <FileCode className="w-4 h-4" /> Templates
           </button>
+          <button onClick={() => setShowBuilder(true)} className="flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+            <Plus className="w-4 h-4" /> New Automation
+          </button>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {showBuilder && <AutomationBuilder onClose={() => setShowBuilder(false)} />}
+      </AnimatePresence>
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
         {automations.length > 0 ? (
