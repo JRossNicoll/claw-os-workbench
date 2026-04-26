@@ -3,7 +3,7 @@ import { StatusIndicator } from "@/components/StatusIndicator";
 import {
   Plus, ArrowLeft, Clock, Zap, ChevronDown, MoreHorizontal,
   Play, CheckCircle, Loader2, XCircle, GitBranch, RotateCcw,
-  SkipForward, ChevronRight, FileCode, Layers,
+  SkipForward, ChevronRight, FileCode, Layers, History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +13,7 @@ import { useRuns, useRunAutomation } from "@/hooks/use-runs";
 import { timeAgo } from "@/hooks/use-activity";
 import { toast } from "sonner";
 import { AutomationBuilder } from "@/components/AutomationBuilder";
+import { ExecutionDrawer } from "@/components/ExecutionDrawer";
 
 const stepIcons: Record<string, typeof CheckCircle> = {
   success: CheckCircle,
@@ -43,6 +44,7 @@ const Automations = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<"steps" | "history" | "logs">("steps");
   const [showBuilder, setShowBuilder] = useState(false);
+  const [drawerFor, setDrawerFor] = useState<{ id: string; name: string; steps: number; tab: "live" | "history" } | null>(null);
   const navigate = useNavigate();
 
   const selected = automations.find((a) => a.id === selectedId);
@@ -213,6 +215,16 @@ const Automations = () => {
 
       <AnimatePresence>
         {showBuilder && <AutomationBuilder onClose={() => setShowBuilder(false)} />}
+        {drawerFor && (
+          <ExecutionDrawer
+            key={drawerFor.id}
+            automationId={drawerFor.id}
+            automationName={drawerFor.name}
+            stepsCount={drawerFor.steps}
+            initialTab={drawerFor.tab}
+            onClose={() => setDrawerFor(null)}
+          />
+        )}
       </AnimatePresence>
 
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }}>
@@ -220,9 +232,9 @@ const Automations = () => {
           <div className="space-y-2">
             {automations.map((auto, i) => (
               <motion.div key={auto.id} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.06 + i * 0.03 }}>
-                <button
+                <div
                   onClick={() => { setSelectedId(auto.id); setDetailTab("steps"); }}
-                  className="w-full flex items-center gap-4 p-5 rounded-xl surface-elevated hover:border-primary/15 transition-all duration-200 text-left group"
+                  className="w-full flex items-center gap-3 p-5 rounded-xl surface-elevated hover:border-primary/15 transition-all duration-200 text-left group cursor-pointer"
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1">
@@ -231,12 +243,38 @@ const Automations = () => {
                     </div>
                     <p className="text-xs text-muted-foreground">{auto.description}</p>
                   </div>
-                  <div className="text-right flex-shrink-0 space-y-0.5">
+                  <div className="text-right flex-shrink-0 space-y-0.5 mr-1">
                     <div className="text-[10px] text-muted-foreground">{auto.trigger}</div>
                     <div className="text-[10px] text-muted-foreground/50">{auto.totalRuns} runs</div>
                   </div>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        runMutation.mutate(
+                          { id: auto.id, name: auto.name, stepsCount: auto.steps.length },
+                          { onSuccess: () => toast.success(`${auto.name} started`) }
+                        );
+                        setDrawerFor({ id: auto.id, name: auto.name, steps: auto.steps.length, tab: "live" });
+                      }}
+                      title="Run now"
+                      className="p-1.5 rounded-md text-muted-foreground hover:text-success hover:bg-success/10 transition-colors"
+                    >
+                      <Play className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDrawerFor({ id: auto.id, name: auto.name, steps: auto.steps.length, tab: "history" });
+                      }}
+                      title="View history"
+                      className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                    >
+                      <History className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                   <ChevronDown className="w-4 h-4 text-muted-foreground/30 -rotate-90 group-hover:text-muted-foreground transition-colors" />
-                </button>
+                </div>
               </motion.div>
             ))}
           </div>

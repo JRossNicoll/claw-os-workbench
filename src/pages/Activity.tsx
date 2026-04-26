@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Download, Play, Pause, CheckCircle, AlertTriangle,
   Wifi, RefreshCw, Shield, Zap, Search, Trash2, FileDown, Filter,
+  Bookmark, BookmarkPlus, Terminal, X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -37,13 +38,34 @@ const TIME_RANGES = [
   { label: "7d", ms: 7 * 24 * 60 * 60 * 1000 },
 ];
 
+const PRESETS_KEY = "clawos-activity-presets-v1";
+const PREFS_KEY = "clawos-activity-prefs-v1";
+
+interface Preset {
+  name: string;
+  search: string;
+  category: string;
+  status: string;
+  range: number;
+}
+
 const Activity = () => {
   const { data: events = [], isLoading } = useActivity();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("All");
+  const [status, setStatus] = useState<string>("All");
   const [range, setRange] = useState<number>(Infinity);
   const [busy, setBusy] = useState(false);
+  const [terminal, setTerminal] = useState<boolean>(() => {
+    try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}").terminal ?? false; } catch { return false; }
+  });
+  const [presets, setPresets] = useState<Preset[]>(() => {
+    try { return JSON.parse(localStorage.getItem(PRESETS_KEY) || "[]"); } catch { return []; }
+  });
+
+  useEffect(() => { localStorage.setItem(PRESETS_KEY, JSON.stringify(presets)); }, [presets]);
+  useEffect(() => { localStorage.setItem(PREFS_KEY, JSON.stringify({ terminal })); }, [terminal]);
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -51,10 +73,17 @@ const Activity = () => {
     return ["All", ...Array.from(set)];
   }, [events]);
 
+  const statuses = useMemo(() => {
+    const set = new Set<string>();
+    events.forEach((e) => e.type && set.add(e.type));
+    return ["All", ...Array.from(set)];
+  }, [events]);
+
   const filtered = useMemo(() => {
     const cutoff = Date.now() - range;
     return events.filter((e) => {
       if (category !== "All" && e.category !== category) return false;
+      if (status !== "All" && e.type !== status) return false;
       if (range !== Infinity && new Date(e.created_at).getTime() < cutoff) return false;
       if (search) {
         const q = search.toLowerCase();
@@ -62,7 +91,26 @@ const Activity = () => {
       }
       return true;
     });
-  }, [events, category, range, search]);
+  }, [events, category, status, range, search]);
+
+  const savePreset = () => {
+    const name = prompt("Preset name?");
+    if (!name) return;
+    const next: Preset = { name, search, category, status, range };
+    setPresets((p) => [...p.filter((x) => x.name !== name), next]);
+    toast.success(`Saved preset "${name}"`);
+  };
+  const applyPreset = (p: Preset) => {
+    setSearch(p.search); setCategory(p.category); setStatus(p.status); setRange(p.range);
+    toast.success(`Applied "${p.name}"`);
+  };
+  const deletePreset = (name: string) => {
+    setPresets((p) => p.filter((x) => x.name !== name));
+  };
+  const clearFilters = () => {
+    setSearch(""); setCategory("All"); setStatus("All"); setRange(Infinity);
+  };
+  const hasActiveFilters = search || category !== "All" || status !== "All" || range !== Infinity;
 
   const grouped = useMemo(() => {
     const groups: Record<string, typeof filtered> = {};
@@ -114,6 +162,9 @@ const Activity = () => {
           <p className="text-sm text-muted-foreground mt-1">Live system events and audit log</p>
         </div>
         <div className="flex items-center gap-2">
+          <button onClick={() => setTerminal((t) => !t)} title="Toggle terminal stream view" className={cn("flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] border border-border transition-colors", terminal ? "text-primary bg-primary/8" : "text-muted-foreground hover:text-foreground hover:bg-card")}>
+            <Terminal className="w-3 h-3" /> {terminal ? "Visual" : "Terminal"}
+          </button>
           <button onClick={handleExport} disabled={!filtered.length} title="Export filtered events" className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] text-muted-foreground hover:text-foreground border border-border hover:bg-card transition-colors disabled:opacity-40">
             <FileDown className="w-3 h-3" /> Export
           </button>
@@ -156,14 +207,16 @@ const Activity = () => {
         </div>
         {categories.length > 1 && (
           <div className="flex items-center gap-1.5 flex-wrap">
-            <Filter className="w-3 h-3 text-muted-foreground/40" />
+            <span className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-muted-foreground/50 mr-1">
+              <Filter className="w-2.5 h-2.5" /> Module
+            </span>
             {categories.map((c) => (
               <button
                 key={c}
                 onClick={() => setCategory(c)}
                 className={cn(
                   "px-2 py-0.5 rounded text-[10px] font-medium transition-colors",
-                  category === c ? "text-primary bg-primary/8" : "text-muted-foreground hover:text-foreground bg-card border border-border"
+                  category === c ? "text-primary bg-primary/8 border border-primary/20" : "text-muted-foreground hover:text-foreground bg-card border border-border"
                 )}
               >
                 {c}
@@ -171,6 +224,49 @@ const Activity = () => {
             ))}
           </div>
         )}
+        {statuses.length > 1 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[9px] uppercase tracking-wider text-muted-foreground/50 mr-1">Status</span>
+            {statuses.map((s) => (
+              <button
+                key={s}
+                onClick={() => setStatus(s)}
+                className={cn(
+                  "px-2 py-0.5 rounded text-[10px] font-medium capitalize transition-colors",
+                  status === s ? "text-primary bg-primary/8 border border-primary/20" : "text-muted-foreground hover:text-foreground bg-card border border-border"
+                )}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="flex items-center gap-1 text-[9px] uppercase tracking-wider text-muted-foreground/50 mr-1">
+            <Bookmark className="w-2.5 h-2.5" /> Presets
+          </span>
+          {presets.map((p) => (
+            <span key={p.name} className="group inline-flex items-center gap-1 pl-2 pr-1 py-0.5 rounded text-[10px] font-medium text-muted-foreground bg-card border border-border hover:text-foreground transition-colors">
+              <button onClick={() => applyPreset(p)}>{p.name}</button>
+              <button onClick={() => deletePreset(p.name)} title="Delete preset" className="opacity-0 group-hover:opacity-100 hover:text-destructive">
+                <X className="w-2.5 h-2.5" />
+              </button>
+            </span>
+          ))}
+          <button
+            onClick={savePreset}
+            disabled={!hasActiveFilters}
+            title={hasActiveFilters ? "Save current filters as preset" : "Apply some filters first"}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/30 transition-colors disabled:opacity-40 disabled:hover:text-muted-foreground"
+          >
+            <BookmarkPlus className="w-2.5 h-2.5" /> Save
+          </button>
+          {hasActiveFilters && (
+            <button onClick={clearFilters} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium text-muted-foreground hover:text-destructive transition-colors">
+              <X className="w-2.5 h-2.5" /> Clear
+            </button>
+          )}
+        </div>
         <p className="text-[10px] text-muted-foreground/50">
           Showing {filtered.length} of {events.length} events
         </p>
@@ -182,6 +278,8 @@ const Activity = () => {
           <p className="text-sm text-muted-foreground">{events.length === 0 ? "No activity yet" : "No events match your filters"}</p>
           <p className="text-xs text-muted-foreground/60 mt-1">{events.length === 0 ? "Events will appear here as you use the system" : "Try clearing filters or expanding the time range"}</p>
         </div>
+      ) : terminal ? (
+        <TerminalFeed events={filtered} />
       ) : (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.05 }} className="space-y-6">
           <AnimatePresence>
@@ -231,5 +329,80 @@ const Activity = () => {
     </div>
   );
 };
+
+interface TermEvent {
+  id: string;
+  type: string;
+  message: string;
+  detail: string | null;
+  category: string | null;
+  created_at: string;
+}
+
+const levelToken: Record<string, { tag: string; color: string }> = {
+  installed: { tag: "INST", color: "text-info" },
+  started: { tag: "STRT", color: "text-success" },
+  paused: { tag: "PAUS", color: "text-warning" },
+  completed: { tag: "DONE", color: "text-success" },
+  warning: { tag: "WARN", color: "text-warning" },
+  online: { tag: "NET ", color: "text-info" },
+  updated: { tag: "UPDT", color: "text-primary" },
+  security: { tag: "SEC ", color: "text-destructive" },
+  info: { tag: "INFO", color: "text-info" },
+  error: { tag: "ERR ", color: "text-destructive" },
+};
+
+function TerminalFeed({ events }: { events: TermEvent[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [autoscroll, setAutoscroll] = useState(true);
+
+  useEffect(() => {
+    if (!autoscroll) return;
+    const el = ref.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [events.length, autoscroll]);
+
+  const ordered = useMemo(() => [...events].reverse(), [events]);
+
+  return (
+    <div className="rounded-lg border border-border bg-terminal-bg overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-border bg-card/40">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            <span className="w-2 h-2 rounded-full bg-destructive/60" />
+            <span className="w-2 h-2 rounded-full bg-warning/60" />
+            <span className="w-2 h-2 rounded-full bg-success/60" />
+          </div>
+          <span className="text-[10px] text-muted-foreground font-mono">clawos://activity · {ordered.length} lines</span>
+        </div>
+        <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground cursor-pointer">
+          <input type="checkbox" checked={autoscroll} onChange={(e) => setAutoscroll(e.target.checked)} className="accent-primary" />
+          autoscroll
+        </label>
+      </div>
+      <div
+        ref={ref}
+        className="font-mono text-[11px] p-3 max-h-[600px] overflow-y-auto terminal-scrollbar leading-5"
+      >
+        {ordered.map((e) => {
+          const tok = levelToken[e.type] || { tag: "EVNT", color: "text-muted-foreground" };
+          const ts = new Date(e.created_at);
+          const stamp = ts.toISOString().slice(11, 19);
+          return (
+            <div key={e.id} className="flex gap-2 hover:bg-card/40">
+              <span className="text-terminal-dim flex-shrink-0">{stamp}</span>
+              <span className={cn("flex-shrink-0 font-semibold", tok.color)}>[{tok.tag}]</span>
+              {e.category && <span className="text-terminal-dim flex-shrink-0">{e.category.toLowerCase()}:</span>}
+              <span className="text-terminal-text break-all">
+                {e.message}
+                {e.detail && <span className="text-terminal-dim"> — {e.detail}</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default Activity;
