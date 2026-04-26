@@ -183,7 +183,7 @@ export function SystemStatusWidget() {
     };
 
     // Worker-down transition
-    if (health === "down" && lastAlertedHealth.current !== "down") {
+    if (prefs.alertWorkerDown && health === "down" && lastAlertedHealth.current !== "down") {
       sendAlert(
         "error",
         "System",
@@ -192,11 +192,12 @@ export function SystemStatusWidget() {
       );
     }
     // Recovery from down
-    if (health !== "down" && lastAlertedHealth.current === "down") {
+    if (prefs.alertWorkerRecovery && health !== "down" && lastAlertedHealth.current === "down") {
       sendAlert("online", "System", "Workers back online", "Heartbeat restored.");
     }
     // High-failure alert (cross threshold upward)
     if (
+      prefs.alertFailureRate &&
       failurePct >= prefs.failureRateAlertPct &&
       lastAlertedFailurePct.current < prefs.failureRateAlertPct &&
       recent.length >= 3
@@ -211,7 +212,7 @@ export function SystemStatusWidget() {
 
     lastAlertedHealth.current = health;
     lastAlertedFailurePct.current = failurePct;
-  }, [health, failurePct, prefs.alertsEnabled, prefs.failureRateAlertPct, breakdown.failed, recent.length, queued, minutesSinceLast]);
+  }, [health, failurePct, prefs.alertsEnabled, prefs.alertWorkerDown, prefs.alertWorkerRecovery, prefs.alertFailureRate, prefs.failureRateAlertPct, breakdown.failed, recent.length, queued, minutesSinceLast]);
 
   // ---- Visuals ----
   const healthColor: Record<Health, string> = {
