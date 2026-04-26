@@ -47,11 +47,25 @@ const Home = () => {
   const activeAutomations = automations.filter((a) => a.status === "active");
   const activeAgents = agents.filter((a) => a.status === "active");
   const runningJobs = runs.filter((r) => r.status === "running").length;
-  const metrics = {
-    active_workflows: activeAutomations.length,
-    running_jobs: runningJobs,
-    active_agents: activeAgents.length,
-  };
+  const completed = runs.filter((r) => r.status === "success").length;
+  const failed = runs.filter((r) => r.status === "failed").length;
+  const successRate = completed + failed > 0 ? Math.round((completed / (completed + failed)) * 100) : 100;
+
+  // Build 7-day sparkline from runs
+  const days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    d.setHours(0, 0, 0, 0);
+    return d;
+  });
+  const dayCounts = days.map((d) => {
+    const next = new Date(d); next.setDate(d.getDate() + 1);
+    return runs.filter((r) => {
+      const t = new Date(r.started_at).getTime();
+      return t >= d.getTime() && t < next.getTime();
+    }).length;
+  });
+  const maxCount = Math.max(1, ...dayCounts);
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 sm:space-y-10">
@@ -69,17 +83,47 @@ const Home = () => {
       </motion.div>
 
       {/* Metrics Strip */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.02 }} className="grid grid-cols-3 gap-2.5">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.02 }} className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
         {[
-          { label: "Active Workflows", value: metrics.active_workflows, color: "text-success" },
-          { label: "Running Jobs", value: metrics.running_jobs, color: "text-info" },
-          { label: "Active Agents", value: metrics.active_agents, color: "text-primary" },
+          { label: "Active Workflows", value: activeAutomations.length, color: "text-success" },
+          { label: "Running Jobs", value: runningJobs, color: "text-info" },
+          { label: "Active Agents", value: activeAgents.length, color: "text-primary" },
+          { label: "Success Rate", value: `${successRate}%`, color: "text-foreground" },
         ].map((m) => (
           <div key={m.label} className="p-3.5 rounded-lg surface-elevated text-center">
             <div className={cn("text-lg font-semibold font-mono", m.color)}>{m.value}</div>
             <div className="text-[10px] text-muted-foreground mt-0.5">{m.label}</div>
           </div>
         ))}
+      </motion.div>
+
+      {/* 7-day run trend */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.04 }} className="p-4 rounded-lg surface-elevated">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Runs · last 7 days</h2>
+          <span className="text-[10px] text-muted-foreground/60 font-mono">{dayCounts.reduce((a, b) => a + b, 0)} total</span>
+        </div>
+        <div className="flex items-end gap-1.5 h-16">
+          {dayCounts.map((count, i) => {
+            const h = Math.max(4, (count / maxCount) * 100);
+            return (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group">
+                <div className="flex-1 w-full flex items-end">
+                  <motion.div
+                    initial={{ height: 0 }}
+                    animate={{ height: `${h}%` }}
+                    transition={{ duration: 0.6, delay: 0.1 + i * 0.05, ease: "easeOut" }}
+                    className={cn("w-full rounded-sm transition-colors", count > 0 ? "bg-primary/60 group-hover:bg-primary" : "bg-muted")}
+                    title={`${count} runs`}
+                  />
+                </div>
+                <span className="text-[9px] text-muted-foreground/50 font-mono">
+                  {days[i].toLocaleDateString(undefined, { weekday: "narrow" })}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </motion.div>
 
       {/* Quick Actions */}

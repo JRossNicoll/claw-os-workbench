@@ -1,18 +1,28 @@
-import { useState } from "react";
-import { Cog, Download, Check, ArrowLeft, Shield, ChevronRight, ExternalLink, Loader2 } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Cog, Download, Check, ArrowLeft, Shield, ChevronRight, ExternalLink, Loader2, Trash2, Bot, ArrowUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { useEngines, useInstallEngine } from "@/hooks/use-engines";
+import { useEngines, useInstallEngine, useUninstallEngine } from "@/hooks/use-engines";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 const categories = ["All", "AI", "Monitoring", "Notifications", "Data", "Automation", "DevOps"];
+const SORTS = [
+  { key: "name", label: "Name" },
+  { key: "stars", label: "Popularity" },
+  { key: "category", label: "Category" },
+] as const;
 
 const Engines = () => {
   const { data: engines = [], isLoading } = useEngines();
   const installMutation = useInstallEngine();
+  const uninstallMutation = useUninstallEngine();
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [sort, setSort] = useState<"name" | "stars" | "category">("name");
+  const [showInstalledOnly, setShowInstalledOnly] = useState(false);
 
   const selected = engines.find((e) => e.id === selectedId);
 
@@ -20,17 +30,37 @@ const Engines = () => {
     installMutation.mutate(engineId, {
       onSuccess: () => {
         const engine = engines.find((e) => e.id === engineId);
-        toast.success(`${engine?.name || "Engine"} installed successfully`);
+        toast.success(`${engine?.name || "Engine"} installed`);
       },
       onError: (err) => toast.error(`Install failed: ${err.message}`),
     });
   };
 
-  const filtered = engines.filter((e) => {
-    if (activeCategory !== "All" && e.category !== activeCategory) return false;
-    if (search && !e.name.toLowerCase().includes(search.toLowerCase()) && !e.description.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const handleUninstall = (engineId: string, name: string) => {
+    if (!confirm(`Uninstall ${name}? Agents using it will stop working.`)) return;
+    uninstallMutation.mutate(engineId, {
+      onSuccess: () => toast.success(`${name} uninstalled`),
+      onError: (err) => toast.error(err.message),
+    });
+  };
+
+  const filtered = useMemo(() => {
+    const list = engines.filter((e) => {
+      if (showInstalledOnly && !e.installed) return false;
+      if (activeCategory !== "All" && e.category !== activeCategory) return false;
+      if (search && !e.name.toLowerCase().includes(search.toLowerCase()) && !e.description.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+    return list.sort((a, b) => {
+      if (sort === "name") return a.name.localeCompare(b.name);
+      if (sort === "stars") {
+        const sa = parseFloat((a.stars || "0").replace(/[^\d.]/g, "")) || 0;
+        const sb = parseFloat((b.stars || "0").replace(/[^\d.]/g, "")) || 0;
+        return sb - sa;
+      }
+      return (a.category || "").localeCompare(b.category || "");
+    });
+  }, [engines, activeCategory, search, sort, showInstalledOnly]);
 
   if (isLoading) {
     return (
@@ -83,6 +113,24 @@ const Engines = () => {
                   <ExternalLink className="w-3 h-3" /> GitHub
                 </a>
               )}
+              {selected.installed && (
+                <>
+                  <button
+                    onClick={() => navigate("/agents")}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-foreground border border-border hover:bg-card transition-colors"
+                  >
+                    <Bot className="w-3 h-3" /> Use in agent
+                  </button>
+                  <button
+                    onClick={() => handleUninstall(selected.id, selected.name)}
+                    disabled={uninstallMutation.isPending}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-destructive/70 hover:text-destructive border border-border hover:bg-destructive/5 transition-colors disabled:opacity-50"
+                    title="Uninstall engine"
+                  >
+                    {uninstallMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                  </button>
+                </>
+              )}
               <button
                 onClick={() => handleInstall(selected.id)}
                 disabled={selected.installed || isInstalling}
@@ -111,12 +159,38 @@ const Engines = () => {
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.06 }} className="space-y-3">
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search engines..."
-          className="w-full max-w-xs bg-card border border-border rounded-lg px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/30 transition-colors"
-        />
+        <div className="flex items-center gap-2">
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search engines..."
+            className="flex-1 max-w-xs bg-card border border-border rounded-lg px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/30 transition-colors"
+          />
+          <div className="flex items-center gap-1 ml-auto">
+            <ArrowUpDown className="w-3 h-3 text-muted-foreground/40" />
+            {SORTS.map((s) => (
+              <button
+                key={s.key}
+                onClick={() => setSort(s.key)}
+                className={cn(
+                  "px-2 py-1 rounded text-[10px] font-medium transition-colors",
+                  sort === s.key ? "text-primary bg-primary/8" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {s.label}
+              </button>
+            ))}
+            <button
+              onClick={() => setShowInstalledOnly((v) => !v)}
+              className={cn(
+                "flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium transition-colors ml-1",
+                showInstalledOnly ? "text-success bg-success/8" : "text-muted-foreground hover:text-foreground border border-border"
+              )}
+            >
+              <Check className="w-2.5 h-2.5" /> Installed
+            </button>
+          </div>
+        </div>
         <div className="flex gap-1.5 flex-wrap">
           {categories.map((cat) => (
             <button
