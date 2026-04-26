@@ -44,6 +44,7 @@ const Automations = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<"steps" | "history" | "logs">("steps");
   const [showBuilder, setShowBuilder] = useState(false);
+  const [drawerFor, setDrawerFor] = useState<{ id: string; name: string; steps: number; tab: "live" | "history" } | null>(null);
   const navigate = useNavigate();
 
   const selected = automations.find((a) => a.id === selectedId);
