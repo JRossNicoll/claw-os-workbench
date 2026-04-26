@@ -47,7 +47,7 @@ export function CommandBar() {
           whileHover={{ scale: 1.03 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-          <img src={logoImg} alt="ClawOS" className="w-5 h-5 object-contain" />
+          <img src={logoImg} alt="ClawOS" className="w-6 h-6 rounded-md object-cover ring-1 ring-primary/30" />
           <span className="font-semibold text-foreground tracking-tight text-sm hidden sm:inline">ClawOS</span>
         </motion.div>
         <div className="w-px h-4 bg-border hidden sm:block" />
@@ -56,10 +56,10 @@ export function CommandBar() {
         <div className="hidden lg:flex items-center gap-1.5 text-xs text-foreground/70 font-medium whitespace-nowrap px-3 py-1 rounded-md border border-border bg-card">
           <span>🪙</span>
           <span>ClawOS is tokenized! Support the Project</span>
-          <a href="https://pump.fun" target="_blank" rel="noopener noreferrer" className="text-destructive font-bold hover:text-destructive/80 transition-colors">HERE</a>
+          <a href="https://pump.fun" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-primary/80 transition-colors">HERE</a>
           <span className="text-muted-foreground/40">|</span>
           <span>Or buy</span>
-          <span className="text-destructive/80 font-mono text-[10px] select-all">3fUkMcx487u3oqZzvvdKi3UBHQ6zRo7TtoQPVZa1pump</span>
+          <span className="text-primary/80 font-mono text-[10px] select-all">3fUkMcx487u3oqZzvvdKi3UBHQ6zRo7TtoQPVZa1pump</span>
         </div>
       </div>
 

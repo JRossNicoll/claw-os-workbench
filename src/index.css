@@ -16,9 +16,9 @@
     --popover: 222 26% 8%;
     --popover-foreground: 220 15% 94%;
 
-    /* Primary — brighter, more saturated signal red */
-    --primary: 358 82% 60%;
-    --primary-glow: 358 95% 70%;
+    /* Primary — crystalline cyan-blue from brand mark */
+    --primary: 211 95% 62%;
+    --primary-glow: 205 100% 75%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 222 22% 11%;
@@ -34,20 +34,20 @@
     --destructive-foreground: 0 0% 100%;
 
     --border: 222 18% 14%;
-    --border-accent: 358 82% 60%;
+    --border-accent: 211 95% 62%;
     --input: 222 18% 14%;
-    --ring: 358 82% 60%;
+    --ring: 211 95% 62%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 222 30% 3.5%;
     --sidebar-foreground: 220 10% 50%;
-    --sidebar-primary: 358 82% 60%;
+    --sidebar-primary: 211 95% 62%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 222 22% 9%;
     --sidebar-accent-foreground: 220 12% 90%;
     --sidebar-border: 222 18% 11%;
-    --sidebar-ring: 358 82% 60%;
+    --sidebar-ring: 211 95% 62%;
 
     /* Brighter, more vivid status colors */
     --success: 152 70% 48%;
@@ -58,7 +58,7 @@
     --info-foreground: 0 0% 100%;
 
     --terminal-bg: 222 30% 3%;
-    --terminal-text: 358 75% 62%;
+    --terminal-text: 211 90% 70%;
     --terminal-dim: 222 14% 22%;
 
     /* Gradient + shadow tokens */

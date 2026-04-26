@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Hexagon, Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import logoImg from "@/assets/logo.webp";
 import { login, ApiError } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -38,7 +39,7 @@ const Login = () => {
         className="w-full max-w-sm"
       >
         <div className="flex items-center gap-2.5 justify-center mb-10">
-          <Hexagon className="w-5 h-5 text-primary" strokeWidth={2.5} />
+          <img src={logoImg} alt="ClawOS" className="w-7 h-7 rounded-md object-cover ring-1 ring-primary/30 shadow-glow" />
           <span className="text-base font-semibold text-foreground tracking-tight">ClawOS</span>
         </div>
 
