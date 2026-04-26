@@ -246,6 +246,12 @@ const Agents = () => {
                 <Trash2 className="w-3 h-3" />
               </button>
               <button
+                onClick={() => setChatAgentId(selected.id)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-foreground border border-border hover:bg-card transition-colors"
+              >
+                <MessageSquare className="w-3 h-3" /> Chat
+              </button>
+              <button
                 onClick={() => handleToggle(selected.id)}
                 disabled={toggleMutation.isPending}
                 className={cn(
