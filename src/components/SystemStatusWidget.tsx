@@ -88,6 +88,24 @@ export function SystemStatusWidget() {
   const updatePrefs = (patch: Partial<Prefs>) => setPrefs((p) => ({ ...p, ...patch }));
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [alertsOpen, setAlertsOpen] = useState(false);
+
+  // Live "Recent alerts" — last 10 system status-change events
+  useRealtimeTable("activity_events", [["system-alerts"]]);
+  const { data: recentAlerts = [] } = useQuery({
+    queryKey: ["system-alerts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("activity_events")
+        .select("id,type,message,detail,created_at")
+        .eq("category", "System")
+        .in("type", ["error", "warning", "online"])
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      return (data || []) as Array<{ id: string; type: string; message: string; detail: string | null; created_at: string }>;
+    },
+  });
 
   // Fresh clock for "time since heartbeat"
   const [now, setNow] = useState(() => Date.now());
