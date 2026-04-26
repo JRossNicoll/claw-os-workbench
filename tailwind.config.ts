@@ -8,8 +8,18 @@ export default {
     container: { center: true, padding: "2rem", screens: { "2xl": "1400px" } },
     extend: {
       fontFamily: {
-        sans: ["'IBM Plex Sans'", "system-ui", "-apple-system", "sans-serif"],
-        mono: ["'IBM Plex Mono'", "monospace"],
+        sans: ["'Geist'", "'IBM Plex Sans'", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["'JetBrains Mono'", "'IBM Plex Mono'", "monospace"],
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-surface": "var(--gradient-surface)",
+        "gradient-radial": "var(--gradient-radial)",
+      },
+      boxShadow: {
+        elegant: "var(--shadow-elegant)",
+        glow: "var(--shadow-glow)",
+        soft: "var(--shadow-soft)",
       },
       colors: {
         border: "hsl(var(--border))",
