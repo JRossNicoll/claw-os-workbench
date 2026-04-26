@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, Play, ArrowRight, Layers, Clock, Cog, Zap, CheckCircle, Download, Wifi, AlertTriangle, Bot } from "lucide-react";
 import { motion } from "framer-motion";
 import { OnboardingWizard } from "@/components/onboarding/OnboardingWizard";
+import { SystemStatusWidget } from "@/components/SystemStatusWidget";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
