@@ -67,7 +67,7 @@ export function SystemStatusWidget() {
 
   // Last automation run state
   const lastRun = runs[0];
-  const lastRunIcon =
+  const LastRunIcon =
     lastRun?.status === "success" ? CheckCircle2 :
     lastRun?.status === "failed" ? XCircle :
     lastRun?.status === "running" ? Loader2 :
