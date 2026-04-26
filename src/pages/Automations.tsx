@@ -3,7 +3,7 @@ import { StatusIndicator } from "@/components/StatusIndicator";
 import {
   Plus, ArrowLeft, Clock, Zap, ChevronDown, MoreHorizontal,
   Play, CheckCircle, Loader2, XCircle, GitBranch, RotateCcw,
-  SkipForward, ChevronRight, FileCode, Layers,
+  SkipForward, ChevronRight, FileCode, Layers, History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +13,7 @@ import { useRuns, useRunAutomation } from "@/hooks/use-runs";
 import { timeAgo } from "@/hooks/use-activity";
 import { toast } from "sonner";
 import { AutomationBuilder } from "@/components/AutomationBuilder";
+import { ExecutionDrawer } from "@/components/ExecutionDrawer";
 
 const stepIcons: Record<string, typeof CheckCircle> = {
   success: CheckCircle,
