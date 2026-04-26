@@ -29,6 +29,9 @@ interface Prefs {
   windowSize: number;
   downThresholdMin: number;
   alertsEnabled: boolean;
+  alertWorkerDown: boolean;
+  alertWorkerRecovery: boolean;
+  alertFailureRate: boolean;
   failureRateAlertPct: number; // 0-100
 }
 
@@ -37,6 +40,9 @@ const DEFAULT_PREFS: Prefs = {
   windowSize: 20,
   downThresholdMin: 30,
   alertsEnabled: true,
+  alertWorkerDown: true,
+  alertWorkerRecovery: true,
+  alertFailureRate: true,
   failureRateAlertPct: 50,
 };
 
