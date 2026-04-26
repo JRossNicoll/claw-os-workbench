@@ -90,8 +90,10 @@ export type Database = {
         Row: {
           automation_id: string
           condition: string | null
+          config: Json
           duration: string | null
           id: string
+          kind: string
           name: string
           retry_config: Json | null
           status: string
@@ -100,8 +102,10 @@ export type Database = {
         Insert: {
           automation_id: string
           condition?: string | null
+          config?: Json
           duration?: string | null
           id?: string
+          kind?: string
           name: string
           retry_config?: Json | null
           status?: string
@@ -110,8 +114,10 @@ export type Database = {
         Update: {
           automation_id?: string
           condition?: string | null
+          config?: Json
           duration?: string | null
           id?: string
+          kind?: string
           name?: string
           retry_config?: Json | null
           status?: string
@@ -157,6 +163,30 @@ export type Database = {
           status?: string
           total_runs?: number
           trigger?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          agent_id: string
+          content: string
+          created_at: string
+          id: string
+          role: string
+        }
+        Insert: {
+          agent_id: string
+          content?: string
+          created_at?: string
+          id?: string
+          role: string
+        }
+        Update: {
+          agent_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
         }
         Relationships: []
       }
@@ -330,6 +360,54 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: string
+        }
+        Relationships: []
+      }
+      step_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          id: string
+          kind: string
+          name: string
+          output: Json | null
+          run_id: string
+          started_at: string | null
+          status: string
+          step_id: string | null
+          step_order: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          output?: Json | null
+          run_id: string
+          started_at?: string | null
+          status?: string
+          step_id?: string | null
+          step_order?: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          output?: Json | null
+          run_id?: string
+          started_at?: string | null
+          status?: string
+          step_id?: string | null
+          step_order?: number
         }
         Relationships: []
       }
