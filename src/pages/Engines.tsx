@@ -113,6 +113,24 @@ const Engines = () => {
                   <ExternalLink className="w-3 h-3" /> GitHub
                 </a>
               )}
+              {selected.installed && (
+                <>
+                  <button
+                    onClick={() => navigate("/agents")}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-foreground border border-border hover:bg-card transition-colors"
+                  >
+                    <Bot className="w-3 h-3" /> Use in agent
+                  </button>
+                  <button
+                    onClick={() => handleUninstall(selected.id, selected.name)}
+                    disabled={uninstallMutation.isPending}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-destructive/70 hover:text-destructive border border-border hover:bg-destructive/5 transition-colors disabled:opacity-50"
+                    title="Uninstall engine"
+                  >
+                    {uninstallMutation.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                  </button>
+                </>
+              )}
               <button
                 onClick={() => handleInstall(selected.id)}
                 disabled={selected.installed || isInstalling}
