@@ -1,15 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Activity, Cpu, ListOrdered, CheckCircle2, XCircle, Loader2, Clock,
-  RefreshCw, AlertOctagon, Radio, Settings2, BellRing, Check,
+  RefreshCw, AlertOctagon, Radio, Settings2, BellRing, Check, Bell, History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRuns } from "@/hooks/use-runs";
 import { timeAgo } from "@/hooks/use-activity";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState, ComponentType } from "react";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useRealtimeTable } from "@/hooks/use-realtime";
 
 type Health = "operational" | "degraded" | "idle" | "down";
 
