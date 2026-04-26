@@ -281,6 +281,11 @@ const Agents = () => {
             </div>
           ))}
         </div>
+        <AnimatePresence>
+          {chatAgentId && (
+            <AgentChat agentId={chatAgentId} agentName={selected.name} onClose={() => setChatAgentId(null)} />
+          )}
+        </AnimatePresence>
       </motion.div>
     );
   }
