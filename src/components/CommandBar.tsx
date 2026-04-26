@@ -43,11 +43,15 @@ export function CommandBar() {
       {/* Brand + Nav */}
       <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
         <motion.div
-          className="flex items-center gap-2"
+          className="flex items-center gap-2.5"
           whileHover={{ scale: 1.03 }}
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
         >
-          <img src={logoImg} alt="ClawOS" className="w-6 h-6 rounded-md object-cover ring-1 ring-primary/30" />
+          <div className="relative w-7 h-7 rounded-lg p-[1.5px] bg-gradient-to-br from-primary/60 via-primary/20 to-transparent shadow-[0_0_18px_-4px_hsl(var(--primary)/0.5)]">
+            <div className="w-full h-full rounded-[7px] overflow-hidden bg-background ring-1 ring-inset ring-white/5">
+              <img src={logoImg} alt="ClawOS" className="w-full h-full object-cover" />
+            </div>
+          </div>
           <span className="font-semibold text-foreground tracking-tight text-sm hidden sm:inline">ClawOS</span>
         </motion.div>
         <div className="w-px h-4 bg-border hidden sm:block" />
