@@ -30,9 +30,36 @@ export function useInstallEngine() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (engineSlug: string) => {
+      const { data: engine } = await supabase
+        .from("engines")
+        .select("name")
+        .eq("slug", engineSlug)
+        .single();
       const { error } = await supabase
         .from("engines")
         .update({ installed: true })
+        .eq("slug", engineSlug);
+      if (error) throw error;
+      await supabase.from("activity_events").insert({
+        type: "installed",
+        message: `${engine?.name ?? engineSlug} engine installed`,
+        category: "Engine",
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["engines"] });
+      qc.invalidateQueries({ queryKey: ["activity"] });
+    },
+  });
+}
+
+export function useUninstallEngine() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (engineSlug: string) => {
+      const { error } = await supabase
+        .from("engines")
+        .update({ installed: false })
         .eq("slug", engineSlug);
       if (error) throw error;
     },
