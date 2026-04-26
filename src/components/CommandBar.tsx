@@ -61,9 +61,6 @@ export function CommandBar() {
           <span>🪙</span>
           <span>ClawOS is tokenized! Support the Project</span>
           <a href="https://pump.fun" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:text-primary/80 transition-colors">HERE</a>
-          <span className="text-muted-foreground/40">|</span>
-          <span>Or buy</span>
-          <span className="text-primary/80 font-mono text-[10px] select-all">3fUkMcx487u3oqZzvvdKi3UBHQ6zRo7TtoQPVZa1pump</span>
         </div>
       </div>
 
@@ -100,7 +97,7 @@ export function CommandBar() {
         </motion.a>
         {/* X / Twitter */}
         <motion.a
-          href="https://x.com/clawos_bot"
+          href="https://x.com/OpenClaw"
           target="_blank"
           rel="noopener noreferrer"
           whileHover={{ scale: 1.08 }}
