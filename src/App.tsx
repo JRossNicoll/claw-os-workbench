@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { Layout } from "@/components/Layout";
 import { PageTransition } from "@/components/PageTransition";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Home from "./pages/Index";
 import Automations from "./pages/Automations";
 import Templates from "./pages/Templates";
