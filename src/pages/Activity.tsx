@@ -330,4 +330,79 @@ const Activity = () => {
   );
 };
 
+interface TermEvent {
+  id: string;
+  type: string;
+  message: string;
+  detail: string | null;
+  category: string | null;
+  created_at: string;
+}
+
+const levelToken: Record<string, { tag: string; color: string }> = {
+  installed: { tag: "INST", color: "text-info" },
+  started: { tag: "STRT", color: "text-success" },
+  paused: { tag: "PAUS", color: "text-warning" },
+  completed: { tag: "DONE", color: "text-success" },
+  warning: { tag: "WARN", color: "text-warning" },
+  online: { tag: "NET ", color: "text-info" },
+  updated: { tag: "UPDT", color: "text-primary" },
+  security: { tag: "SEC ", color: "text-destructive" },
+  info: { tag: "INFO", color: "text-info" },
+  error: { tag: "ERR ", color: "text-destructive" },
+};
+
+function TerminalFeed({ events }: { events: TermEvent[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [autoscroll, setAutoscroll] = useState(true);
+
+  useEffect(() => {
+    if (!autoscroll) return;
+    const el = ref.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [events.length, autoscroll]);
+
+  const ordered = useMemo(() => [...events].reverse(), [events]);
+
+  return (
+    <div className="rounded-lg border border-border bg-terminal-bg overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-border bg-card/40">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            <span className="w-2 h-2 rounded-full bg-destructive/60" />
+            <span className="w-2 h-2 rounded-full bg-warning/60" />
+            <span className="w-2 h-2 rounded-full bg-success/60" />
+          </div>
+          <span className="text-[10px] text-muted-foreground font-mono">clawos://activity · {ordered.length} lines</span>
+        </div>
+        <label className="flex items-center gap-1.5 text-[10px] text-muted-foreground cursor-pointer">
+          <input type="checkbox" checked={autoscroll} onChange={(e) => setAutoscroll(e.target.checked)} className="accent-primary" />
+          autoscroll
+        </label>
+      </div>
+      <div
+        ref={ref}
+        className="font-mono text-[11px] p-3 max-h-[600px] overflow-y-auto terminal-scrollbar leading-5"
+      >
+        {ordered.map((e) => {
+          const tok = levelToken[e.type] || { tag: "EVNT", color: "text-muted-foreground" };
+          const ts = new Date(e.created_at);
+          const stamp = ts.toISOString().slice(11, 19);
+          return (
+            <div key={e.id} className="flex gap-2 hover:bg-card/40">
+              <span className="text-terminal-dim flex-shrink-0">{stamp}</span>
+              <span className={cn("flex-shrink-0 font-semibold", tok.color)}>[{tok.tag}]</span>
+              {e.category && <span className="text-terminal-dim flex-shrink-0">{e.category.toLowerCase()}:</span>}
+              <span className="text-terminal-text break-all">
+                {e.message}
+                {e.detail && <span className="text-terminal-dim"> — {e.detail}</span>}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default Activity;
