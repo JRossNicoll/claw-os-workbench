@@ -42,12 +42,12 @@
 
     --sidebar-background: 222 30% 3.5%;
     --sidebar-foreground: 220 10% 50%;
-    --sidebar-primary: 358 82% 60%;
+    --sidebar-primary: 211 95% 62%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 222 22% 9%;
     --sidebar-accent-foreground: 220 12% 90%;
     --sidebar-border: 222 18% 11%;
-    --sidebar-ring: 358 82% 60%;
+    --sidebar-ring: 211 95% 62%;
 
     /* Brighter, more vivid status colors */
     --success: 152 70% 48%;
