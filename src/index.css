@@ -16,9 +16,9 @@
     --popover: 222 26% 8%;
     --popover-foreground: 220 15% 94%;
 
-    /* Primary — brighter, more saturated signal red */
-    --primary: 358 82% 60%;
-    --primary-glow: 358 95% 70%;
+    /* Primary — crystalline cyan-blue from brand mark */
+    --primary: 211 95% 62%;
+    --primary-glow: 205 100% 75%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 222 22% 11%;
