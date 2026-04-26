@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Bot, Play, Square, ArrowLeft, Zap, Clock, CheckCircle, Plus, X, Loader2, Trash2 } from "lucide-react";
+import { Bot, Play, Square, ArrowLeft, Zap, Clock, CheckCircle, Plus, X, Loader2, Trash2, MessageSquare } from "lucide-react";
+import { AgentChat } from "@/components/AgentChat";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAgents, useToggleAgent, useCreateAgent, useDeleteAgent } from "@/hooks/use-agents";
@@ -182,6 +183,7 @@ const Agents = () => {
   const deleteMutation = useDeleteAgent();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [chatAgentId, setChatAgentId] = useState<string | null>(null);
 
   const selected = agents.find((a) => a.id === selectedId);
 
@@ -244,6 +246,12 @@ const Agents = () => {
                 <Trash2 className="w-3 h-3" />
               </button>
               <button
+                onClick={() => setChatAgentId(selected.id)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs text-foreground border border-border hover:bg-card transition-colors"
+              >
+                <MessageSquare className="w-3 h-3" /> Chat
+              </button>
+              <button
                 onClick={() => handleToggle(selected.id)}
                 disabled={toggleMutation.isPending}
                 className={cn(
@@ -273,6 +281,11 @@ const Agents = () => {
             </div>
           ))}
         </div>
+        <AnimatePresence>
+          {chatAgentId && (
+            <AgentChat agentId={chatAgentId} agentName={selected.name} onClose={() => setChatAgentId(null)} />
+          )}
+        </AnimatePresence>
       </motion.div>
     );
   }
